@@ -1,10 +1,19 @@
 export class EmojiiCombo {
   private emojiiCombo: string[];
+  private emojiiComboName: string;
+  private fullEmojiiStr: string;
 
-
-  constructor(emojiiCombo: string[])
+  /**
+  * Returns the emojii combo
+  *
+  * @param {string} emojiiComboName the title of the emojii combo
+  * @return {string[]} the list of emojii in the combo
+  */
+  constructor(emojiiComboName: string, emojiiCombo: string[])
   {
+    this.emojiiComboName = emojiiComboName;
     this.emojiiCombo = emojiiCombo;
+    this.fullEmojiiStr = EmojiiCombo.getFullEmojiiStr(this.emojiiComboName, this.emojiiCombo);
   }
 
   /**
@@ -18,13 +27,23 @@ export class EmojiiCombo {
   }
 
   /**
-  * Returns a lengthy introduction introdution to the emojii combo. (A name, damage range, and emojii list)
+  * Returns the stored introdution to the emojii combo. (A name, damage range, and emojii list)
+  *
+  * @return {string[]} the list of emojii in the combo
+  */
+  public getFullEmojiiStr() : string
+  {
+    return this.fullEmojiiStr;
+  }
+
+  /**
+  * Returns a lengthy introduction to the emojii combo. (A name, damage range, and emojii list)
   * @param {string} emojiiComboName the title of the emojii combo
   * @param {string[]} emojiiCombo an array of emojii strings
   *
   * @return {string} a labeled string for the emojii combo.
   */
-  public static getFullEmojiiStr(emojiiComboName : string, emojiiCombo : string[])
+  public static getFullEmojiiStr(emojiiComboName : string, emojiiCombo : string[]) : string
   {
     let fullEmojiiStr = "";
     fullEmojiiStr += EmojiiCombo.getTitleString(emojiiComboName, emojiiCombo);
