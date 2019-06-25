@@ -1,0 +1,8 @@
+# ignore the config file with secret info
+src/secretConfig.ts
+
+# ignore the compiled JS. (P.S. this also includes secret info)
+dist
+
+# ignore node modules folder
+node_modules
