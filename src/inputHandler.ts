@@ -3,7 +3,7 @@ import {Boss} from "./boss";
 
 export class InputHandler
 {
-  private static readonly COMMAND_PREFIX : string = ".emojiiBatle";
+  private static readonly COMMAND_PREFIX : string = ".emb";
   private static readonly START_BATTLE_COMMAND : string= "start";
   private static readonly ABORT_BATTLE_COMMAND : string = "abort";
   private static readonly HELP_COMMAND : string = "help";
@@ -52,7 +52,7 @@ export class InputHandler
         this.displayInvalidCommand(message.channel);
       }
     }
-    else if(this.emojiiBatleActive && InputHandler.isEmojii(textInput))
+    else if(this.emojiiBatleActive && InputHandler.isEmojii(textInput) && message.channel)
     {
       // Handle boss fight commands
       this.boss.handleEmojiiInput(textInput);
@@ -122,14 +122,14 @@ export class InputHandler
     }
     else
     {
-        channel.send(`Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.START_BATTLE_COMMAND}' to begin a battle.\n\n
-        During a battle, type one emojii character at a time to damage the boss.\n\n
-        To gain maximum damage output, complete an UNINTERRUPTED string of emojii to form a combo.\n\n
-        For example, if the combo is :banana: :apple: :banana:, you would type:\n\n
-        :banana:\n\n
-        :apple:\n\n
-        :banana:\n\n
-        Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);
+        channel.send(`Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.START_BATTLE_COMMAND}' to begin a battle.\n\n`+
+        "During a battle, type one emojii character at a time to damage the boss.\n\n"+
+        "To gain maximum damage output, complete an UNINTERRUPTED string of emojii to form a combo.\n\n"+
+        "For example, if the combo is :banana: :apple: :banana:, you would type:\n\n"+
+        ":banana:\n\n"+
+        ":apple:\n\n"+
+        ":banana:\n\n"+
+        `Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);
     }
   }
 
@@ -140,6 +140,6 @@ export class InputHandler
   */
   private displayInvalidCommand(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-  channel.send(`Invalid command. For a list of commands, type '${InputHandler.COMMAND_PREFIX} ${InputHandler.HELP_COMMAND}'.`);
+  channel.send(`Invalid command.\n\nFor a list of commands, type '${InputHandler.COMMAND_PREFIX} ${InputHandler.HELP_COMMAND}'.`);
   }
 }
