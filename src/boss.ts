@@ -1,3 +1,4 @@
+import * as Discord from "discord.js";
 import {BossDialogGenerator} as BossDialogGenerator from "bossDialogGenerator.ts";
 import {OutputHandler} as OutputHandler from "outputHandler.ts";
 import {EmojiiCombo} as EmojiiCombo from "emojiiCombo.ts";
@@ -8,10 +9,15 @@ export class Boss{
   private dialogGenerator : BossDialogGenerator;
   private emojiiSlidingWindow : [string];
 
-  constructor(outputHandler : OutputHandler, bossDialogGenerator : BossDialogGenerator)
+  /**
+  * Constructs a boss for the emojii battle
+  * @param {Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel} channel
+           the channel the battle will take place in.
+  */
+  constructor(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel)
   {
-    this.outputHandler = outputHandler;
-    this.dialogGenerator = bossDialogGenerator;
+    this.outputHandler = new OutputHandler(channel);
+    this.dialogGenerator = new BossDialogGenerator();
     this.emojiiComboList = [];
     this.emojiiSlidingWindow = [];
   }

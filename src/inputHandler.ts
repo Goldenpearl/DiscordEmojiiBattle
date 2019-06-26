@@ -1,6 +1,7 @@
-import * as OutputHandlerFile from "./outputHandler";
+import * as Discord from "discord.js";
+import * as Boss from "./boss";
 
-class InputHandler
+export class InputHandler
 {
   private static readonly COMMAND_PREFIX : string = ".emojiiBatle";
   private static readonly START_BATTLE_COMMAND : string= "start";
@@ -8,15 +9,12 @@ class InputHandler
   private static readonly HELP_COMMAND : string = "help";
 
   private emojiiBatleActive: boolean;
-  private outputHandler : OutputHandler;
   private boss : Boss;
-  // TODO battle channel
 
-  // TODO pass in channels to listen on?
-  constructor (outputHandler : OutputHandler)
+  // TODO currently boss battle can only take place in one channel at a time
+  constructor ()
   {
     this.emojiiBatleActive = false;
-    this.outputHandler = outputHandler;
   };
 
   /**
@@ -24,15 +22,16 @@ class InputHandler
   * @param {string} textInput the string to process.
   * @param {string} username the name of the user who entered the command.
   */
-  public handleInput(textInput:string, username:string) : void
+  public handleInput(message : Discord.Message) : void
   {
+    let textInput:string = message.content;
     if(textInput.startsWith(InputHandler.COMMAND_PREFIX + " "))
     {
       // Handle core commands
-      let commandStr = textInput.slice(InputHandler.COMMAND_PREFIX.length + 1); // Remove the command prefix, and the space.
+      let commandStr = textInput.slice(InputHandler.COMMAND_PREFIX.length + 1); // Removes the command prefix, and the space.
       if(commandStr == InputHandler.START_BATTLE_COMMAND)
       {
-        this.startEmojiiBatle();
+        this.startEmojiiBatle(message.channel);
       }
       else if (commandStr == InputHandler.ABORT_BATTLE_COMMAND)
       {
@@ -79,10 +78,13 @@ class InputHandler
 
   /**
   * Starts a new emojii battle, if no other battle is active.
+  * @param {Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel} channel
+           the channel the battle will take place in.
   */
-  private startEmojiiBatle() : void
+  private startEmojiiBatle(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
     this.emojiiBatleActive = true;
+    this.boss = new Boss(channel);
     // TODO start battle
 
     // TODO spawn boss
