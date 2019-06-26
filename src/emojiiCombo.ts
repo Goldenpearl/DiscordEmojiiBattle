@@ -1,9 +1,8 @@
-import {BossDialogGenerator} from "./bossDialogGenerator"
-
 export class EmojiiCombo {
   private emojiiCombo: string[];
   private emojiiComboName: string;
   private fullEmojiiStr: string;
+  private damageRange: [number, number];
 
   /**
   * Returns the emojii combo
@@ -15,7 +14,9 @@ export class EmojiiCombo {
   {
     this.emojiiComboName = emojiiComboName;
     this.emojiiCombo = emojiiCombo;
-    this.fullEmojiiStr = EmojiiCombo.getFullEmojiiStr(this.emojiiComboName, this.emojiiCombo);
+    this.damageRange = EmojiiCombo.calculateComboDamageRange(emojiiCombo);
+    this.fullEmojiiStr = EmojiiCombo.calculateFullEmojiiStr(this.emojiiComboName, this.emojiiCombo, this.damageRange);
+
   }
 
   /**
@@ -29,7 +30,7 @@ export class EmojiiCombo {
   }
 
   /**
-  * Returns the stored introdution to the emojii combo. (A name, damage range, and emojii list)
+  * Returns the stored introdution to the emojii combo.
   *
   * @return {string[]} the list of emojii in the combo
   */
@@ -39,42 +40,26 @@ export class EmojiiCombo {
   }
 
   /**
-  * Returns a lengthy introduction to the emojii combo. (A name, damage range, and emojii list)
-  * @param {string} emojiiComboName the title of the emojii combo
-  * @param {string[]} emojiiCombo an array of emojii strings
+  * Returns the damage range of the emojii combo.
   *
-  * @return {string} a labeled string for the emojii combo.
+  * @return {[number, number]} the damage range of the emojii combo. (Min, Max)
   */
-  public static getFullEmojiiStr(emojiiComboName : string, emojiiCombo : string[]) : string
+  public getDamageRange() : [number, number]
   {
-    let fullEmojiiStr = "";
-    fullEmojiiStr += EmojiiCombo.getTitleString(emojiiComboName, emojiiCombo);
-    fullEmojiiStr += "\n";
-    fullEmojiiStr += EmojiiCombo.getEmojiiStr(emojiiCombo);
-    fullEmojiiStr += "\n";
-    fullEmojiiStr += EmojiiCombo.getHelperStr(emojiiCombo);
-    return fullEmojiiStr;
+    return this.damageRange;
   }
 
   /**
   * Returns the introdution to the emojii combo. (A name and damage range)
-  * @param {string} emojiiComboName the title of the emojii combo
   * @param {string[]} emojiiCombo an array of emojii strings
   *
   * @return {string} a labeled string for the emojii combo.
   */
-  public static getTitleString(emojiiComboName : string, emojiiCombo : string[]) : string
+  private getDamageString(emojiiCombo : string[]) : string
   {
-    let emojiiTitleString : string = "";
-    let emojiiDamageRange : [number, number] = EmojiiCombo.getComboDamageRange(emojiiCombo);
-
-    // construct the emojii title string
-    emojiiTitleString += emojiiComboName + "(";
-    emojiiTitleString += emojiiDamageRange[0];
-    emojiiTitleString += emojiiComboName + "-";
-    emojiiTitleString += emojiiDamageRange[1];
-    emojiiTitleString += emojiiComboName + " damage)";
-    return emojiiTitleString;
+    // construct the emojii damage string
+    let emojiiDamageStr : string = `(${this.damageRange[0]}-${this.damageRange[1]} dmg)`;
+    return emojiiDamageStr;
   }
 
   /**
@@ -83,7 +68,7 @@ export class EmojiiCombo {
   *
   * @return {string} a string of emojiis when displayed in discord.
   */
-  public static getEmojiiStr(emojiiCombo : string[]) : string
+  private static getEmojiiStr(emojiiCombo : string[]) : string
   {
     let emojiiString : string = "";
     for(let emojii of emojiiCombo)
@@ -102,7 +87,7 @@ export class EmojiiCombo {
   *
   * @return {string} a string of plain-text emojiis when displayed in discord.
   */
-  public static getHelperStr(emojiiCombo: string[]) : string
+  private static getHelperStr(emojiiCombo: string[]) : string
   {
     let helperString : string = "(";
     for(let emojii of emojiiCombo)
@@ -124,7 +109,7 @@ export class EmojiiCombo {
   *
   * @return {number, number} the min damage, and the max damage
   */
-  public static getComboDamageRange(emojiiCombo: string[]) : [number, number]
+  private static calculateComboDamageRange(emojiiCombo: string[]) : [number, number]
   {
     /*let comboDamage = 0;
     let comboMultiplier = 5;
@@ -150,5 +135,20 @@ export class EmojiiCombo {
     //let numberSameEmojiiInARow = 0; //
     return comboDamage;*/
     return [5, 15];
+  }
+
+  /**
+  * Returns a lengthy introduction to the emojii combo.
+  * @param {string} emojiiComboName the title of the emojii combo
+  * @param {string[]} emojiiCombo an array of emojii strings
+  *
+  * @return {string} a labeled string for the emojii combo.
+  */
+  private static calculateFullEmojiiStr(emojiiComboName : string, emojiiCombo :string[], damageRange :[number,number]) : string
+  {
+    let fullEmojiiStr = "";
+    fullEmojiiStr += `**${emojiiComboName}**\n`;
+    fullEmojiiStr += `- ${EmojiiCombo.getEmojiiStr(emojiiCombo)} (${damageRange[0]}-${damageRange[1]} dmg)`;
+    return fullEmojiiStr;
   }
 }

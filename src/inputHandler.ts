@@ -31,9 +31,16 @@ export class InputHandler
       message.reply("hi");
     }
 
+    // handle boss early defeat
+    // TODO implement in a more graceful way, e.g. listener or referenced variable
+    if(this.emojiiBatleActive && this.boss.isBossAlive())
+    {
+      this.emojiiBatleActive = false;
+      this.boss = null;
+    }
+
     if(textInput.startsWith(InputHandler.COMMAND_PREFIX + " "))
     {
-      // Handle core commands
       let commandStr = textInput.slice(InputHandler.COMMAND_PREFIX.length + 1); // Removes the command prefix, and the space.
       if(commandStr == InputHandler.START_BATTLE_COMMAND)
       {

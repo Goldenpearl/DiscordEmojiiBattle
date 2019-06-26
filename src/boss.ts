@@ -4,11 +4,17 @@ import {OutputHandler} from "./outputHandler";
 import {EmojiiCombo} from "./emojiiCombo";
 
 export class Boss{
-  private static readonly DEFAULT_HEALTH : number = 100;
+  private static readonly DEFAULT_HEALTH : number = 10;
+  private static readonly DEFAULT_BOSS_NAME : string = "Gargal the Destroyer";
+  private static readonly DEFAULT_BOSS_EMOJII : string = ":dolphin:";
+  private static readonly DEFULT_EMOJII_COMBO_1 : EmojiiCombo = new EmojiiCombo("Starborn Fury", [":heart:", ":star:", ":moon:"]);
+
   private outputHandler : OutputHandler;
   private dialogGenerator : BossDialogGenerator;
   private bossChannelId : Discord.Snowflake;
 
+  private bossName : string;
+  private bossEmojii : string;
   private bossMaxHealth : number;
   private bossCurrentHealth : number;
   private emojiiComboList : EmojiiCombo[];
@@ -26,7 +32,9 @@ export class Boss{
     this.bossChannelId = channel.id;
 
     // Initialize encounter settings
-    this.emojiiComboList  = [];
+    this.bossName = Boss.DEFAULT_BOSS_NAME;
+    this.bossEmojii = Boss.DEFAULT_BOSS_EMOJII;
+    this.emojiiComboList  = [Boss.DEFULT_EMOJII_COMBO_1];
     this.emojiiSlidingWindow = [];
     this.bossMaxHealth = Boss.DEFAULT_HEALTH;
     this.bossCurrentHealth = Boss.DEFAULT_HEALTH;
@@ -47,22 +55,34 @@ export class Boss{
   */
   public handleEmojiiInput(emojiiInput : string) : void
   {
-    let damage : number = 1;
-    this.outputHandler.outputToChannel(this.dialogGenerator.getBossTakesMinorDamage(damage, emojiiInput));
-    this.bossCurrentHealth = this.bossCurrentHealth - damage;
+    if(this.isBossAlive())
+    {
+      let damage : number = 1;
+      this.outputHandler.outputToChannel(this.dialogGenerator.getBossTakesMinorDamage(damage, emojiiInput));
+      this.bossCurrentHealth = this.bossCurrentHealth - damage;
 
-    // Determine if the emojii is present in any combo (sliding window)
+      // TODO add boss taunts at certain thresholds
 
-    // Determine damage
+      // Determine if the emojii is present in any combo (sliding window)
 
-    // Display combo status and damage
+      // Determine damage
 
-    // If needed, refresh boss UI
+      // Display combo status and damage
+
+      // If needed, refresh boss UI
+
+      if(!this.isBossAlive())
+      {
+        this.handleBossDefeat();
+      }
+    }
   }
 
   public spawn() : void
   {
     this.outputHandler.outputToChannel("This is a test to spawn the boss");
+    this.outputHandler.outputToChannel(this.dialogGenerator.getFullStatus(this.bossName,
+      this.bossEmojii, this.bossCurrentHealth, this.bossMaxHealth, this.emojiiComboList));
   }
 
   public abort() : void
@@ -70,5 +90,34 @@ export class Boss{
     // TODO display health percentage and time
     // TODO destroy boss
     this.outputHandler.outputToChannel(`Boss was aborted early. (${this.bossCurrentHealth}/${this.bossMaxHealth}HP)`);
+  }
+
+  /**
+  * Output a message when the boss is victorious.
+  */
+  public bossTimeout() : void
+  {
+    if(this.isBossAlive())
+    {
+      this.outputHandler.outputToChannel(this.dialogGenerator.getBossVictoryTaunt());
+    }
+  }
+
+  /**
+  * Output a message when the player is victorious.
+  */
+  private handleBossDefeat() : void
+  {
+    this.outputHandler.outputToChannel(this.dialogGenerator.getBossDefeat());
+  }
+
+  /**
+  * Returns whether the boss is currently alive.
+  *
+  * @return {boolean} true if the boss is alive, otherwise false
+  */
+  public isBossAlive() : boolean
+  {
+    return this.bossCurrentHealth > 0;
   }
 }
