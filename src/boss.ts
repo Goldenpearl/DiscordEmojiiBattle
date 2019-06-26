@@ -1,13 +1,13 @@
 import * as Discord from "discord.js";
-import {BossDialogGenerator} as BossDialogGenerator from "bossDialogGenerator.ts";
-import {OutputHandler} as OutputHandler from "outputHandler.ts";
-import {EmojiiCombo} as EmojiiCombo from "emojiiCombo.ts";
+import {BossDialogGenerator} from "./bossDialogGenerator";
+import {OutputHandler} from "./outputHandler";
+import {EmojiiCombo} from "./emojiiCombo";
 
 export class Boss{
-  private emojiiComboList : [EmojiiCombo];
+  private emojiiComboList : EmojiiCombo[];
   private outputHandler : OutputHandler;
   private dialogGenerator : BossDialogGenerator;
-  private emojiiSlidingWindow : [string];
+  private emojiiSlidingWindow : string[];
 
   /**
   * Constructs a boss for the emojii battle
@@ -18,7 +18,7 @@ export class Boss{
   {
     this.outputHandler = new OutputHandler(channel);
     this.dialogGenerator = new BossDialogGenerator();
-    this.emojiiComboList = [];
+    this.emojiiComboList  = [];
     this.emojiiSlidingWindow = [];
   }
 

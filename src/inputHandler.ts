@@ -1,5 +1,5 @@
 import * as Discord from "discord.js";
-import * as Boss from "./boss";
+import {Boss} from "./boss";
 
 export class InputHandler
 {
@@ -39,11 +39,11 @@ export class InputHandler
       }
       else if (commandStr == InputHandler.HELP_COMMAND)
       {
-        this.displayHelp();
+        this.displayHelp(message.channel);
       }
       else
       {
-        this.displayInvalidCommand();
+        this.displayInvalidCommand(message.channel);
       }
     }
     else if(this.emojiiBatleActive && InputHandler.isEmojii(textInput))
@@ -97,24 +97,25 @@ export class InputHandler
   */
   private abortEmojiiBattle() : void
   {
+    this.boss.abort(); //TODO await?
     this.emojiiBatleActive = false;
-    // TODO abort battle
-    this.outputHandler.outputToChannel("Battle has been aborted.");
   }
 
   /**
   * Displays a help message when the user types the help command
+  * @param {Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel} channel
+           the channel to reply in.
   */
-  private displayHelp() : void
+  private displayHelp(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
     if(this.emojiiBatleActive)
     {
-      this.outputHandler.outputToChannel(`Cannot display full help options during battle.\n\n
+      channel.send(`Cannot display full help options during battle.\n\n
         Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);
     }
     else
     {
-      this.outputHandler.outputToChannel(`Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.START_BATTLE_COMMAND}' to begin a battle.\n\n
+        channel.send(`Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.START_BATTLE_COMMAND}' to begin a battle.\n\n
         During a battle, type one emojii character at a time to damage the boss.\n\n
         To gain maximum damage output, complete an UNINTERRUPTED string of emojii to form a combo.\n\n
         For example, if the combo is :banana: :apple: :banana:, you would type:\n\n
@@ -127,9 +128,11 @@ export class InputHandler
 
   /**
   * Displays a help message when the user enters an invalid command.
+  * @param {Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel} channel
+           the channel to reply in.
   */
-  private displayInvalidCommand() : void
+  private displayInvalidCommand(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    this.outputHandler.outputToChannel(`Invalid command. For a list of commands, type '${InputHandler.COMMAND_PREFIX} ${InputHandler.HELP_COMMAND}'.`);
+  channel.send(`Invalid command. For a list of commands, type '${InputHandler.COMMAND_PREFIX} ${InputHandler.HELP_COMMAND}'.`);
   }
 }

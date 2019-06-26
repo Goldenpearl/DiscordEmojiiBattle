@@ -1,3 +1,5 @@
+import {BossDialogGenerator} from "./bossDialogGenerator"
+
 export class EmojiiCombo {
   private emojiiCombo: string[];
   private emojiiComboName: string;
@@ -7,7 +9,7 @@ export class EmojiiCombo {
   * Returns the emojii combo
   *
   * @param {string} emojiiComboName the title of the emojii combo
-  * @return {string[]} the list of emojii in the combo
+  * @param {string[]} emojiiCombo a list of emojii in the combo
   */
   constructor(emojiiComboName: string, emojiiCombo: string[])
   {
