@@ -11,7 +11,10 @@ client.on('ready', function(){
 })
 
 client.on('message', function(message){
-  inputHandler.handleInput(message);
+  if(!message.author.bot)
+  {
+    inputHandler.handleInput(message);
+  }
 })
 
 // TODO logout message

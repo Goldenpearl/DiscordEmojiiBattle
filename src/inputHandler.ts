@@ -3,7 +3,7 @@ import {Boss} from "./boss";
 
 export class InputHandler
 {
-  private static readonly COMMAND_PREFIX : string = ".emb";
+  private static readonly COMMAND_PREFIX : string = ".ebb";
   private static readonly START_BATTLE_COMMAND : string= "start";
   private static readonly ABORT_BATTLE_COMMAND : string = "abort";
   private static readonly HELP_COMMAND : string = "help";
@@ -52,8 +52,11 @@ export class InputHandler
         this.displayInvalidCommand(message.channel);
       }
     }
-    else if(this.emojiiBatleActive && InputHandler.isEmojii(textInput) && message.channel)
+    else if(this.emojiiBatleActive && message.channel.id == this.boss.getBossChannelId()
+      //&& InputHandler.isEmojii(textInput))
+    )
     {
+      message.reply("used an emojii");
       // Handle boss fight commands
       this.boss.handleEmojiiInput(textInput);
     }
@@ -92,6 +95,7 @@ export class InputHandler
   {
     this.emojiiBatleActive = true;
     this.boss = new Boss(channel);
+    this.boss.spawn();
     // TODO start battle
 
     // TODO spawn boss
@@ -117,8 +121,8 @@ export class InputHandler
   {
     if(this.emojiiBatleActive)
     {
-      channel.send(`Cannot display full help options during battle.\n\n
-        Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);
+      channel.send("Cannot display full help options during battle.\n\n"+
+        `Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);
     }
     else
     {

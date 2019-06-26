@@ -16,9 +16,9 @@ export class BossDialogGenerator
     return "Not strong enough!";
   }
 
-  getBossTakesMinorDamage() : string
+  getBossTakesMinorDamage(damage : number, source : string) : string
   {
-    return "Ouch!";
+    return `Ouch! ${source} did ${damage} damage.`;
   }
 
   getBossTakesMediumDamage() : string
