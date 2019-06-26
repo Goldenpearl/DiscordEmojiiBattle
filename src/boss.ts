@@ -1,21 +1,28 @@
-export class Boss{
-  private emojiiCombo = "";
-  private emojiiCombo2 = "";
-  private emojiiCombo3 = "";
+import {BossDialogGenerator} as BossDialogGenerator from "bossDialogGenerator.ts";
+import {OutputHandler} as OutputHandler from "outputHandler.ts";
+import {EmojiiCombo} as EmojiiCombo from "emojiiCombo.ts";
 
+export class Boss{
+  private emojiiComboList : [EmojiiCombo];
   private outputHandler : OutputHandler;
-  constructor(outputHandler : OutputHandler)
+  private dialogGenerator : BossDialogGenerator;
+  private emojiiSlidingWindow : [string];
+
+  constructor(outputHandler : OutputHandler, bossDialogGenerator : BossDialogGenerator)
   {
     this.outputHandler = outputHandler;
+    this.dialogGenerator = bossDialogGenerator;
+    this.emojiiComboList = [];
+    this.emojiiSlidingWindow = [];
   }
-  
+
   /**
   * Handles an emojii input during a boss fight
   * @param {string} textInput the string to process. (Should be an emojii)
   */
   public handleEmojiiInput(emojiiInput : string) : void
   {
-    // Determine if the emojii is present in the combo
+    // Determine if the emojii is present in any combo (sliding window)
 
     // Determine damage
 
@@ -26,7 +33,7 @@ export class Boss{
 
   public spawn() : void
   {
-
+    this.outputHandler.outputToChannel("This is a test to spawn the boss");
   }
 
   public abort() : void
