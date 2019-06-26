@@ -9,12 +9,13 @@ export class InputHandler
   private static readonly HELP_COMMAND : string = "help";
 
   private emojiiBatleActive: boolean;
-  private boss : Boss;
+  private boss : any; // Had to turn off type checking, since Discord's message classes don't have default initializers
 
   // TODO currently boss battle can only take place in one channel at a time
   constructor ()
   {
     this.emojiiBatleActive = false;
+    this.boss = null;
   };
 
   /**
@@ -25,6 +26,11 @@ export class InputHandler
   public handleInput(message : Discord.Message) : void
   {
     let textInput:string = message.content;
+    if(textInput == "hello")
+    {
+      message.reply("hi");
+    }
+
     if(textInput.startsWith(InputHandler.COMMAND_PREFIX + " "))
     {
       // Handle core commands
@@ -51,6 +57,7 @@ export class InputHandler
       // Handle boss fight commands
       this.boss.handleEmojiiInput(textInput);
     }
+
   }
 
   /**
