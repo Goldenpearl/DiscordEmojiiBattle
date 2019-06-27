@@ -4,9 +4,9 @@ import {Boss} from "./boss";
 export class InputHandler
 {
   private static readonly COMMAND_PREFIX : string = ".ebb";
-  private static readonly START_BATTLE_COMMAND : string= "start";
-  private static readonly ABORT_BATTLE_COMMAND : string = "abort";
-  private static readonly HELP_COMMAND : string = "help";
+  private static readonly START_BATTLE_COMMAND : string= "start"; // TODO alternate phrasings
+  private static readonly ABORT_BATTLE_COMMAND : string = "abort"; // TODO alternate phrasings
+  private static readonly HELP_COMMAND : string = "help"; // TODO alternate phrasings
 
   private emojiiBatleActive: boolean;
   private boss : any; // Had to turn off type checking, since Discord's message classes don't have default initializers
@@ -33,7 +33,7 @@ export class InputHandler
 
     // handle boss early defeat
     // TODO implement in a more graceful way, e.g. listener or referenced variable
-    if(this.emojiiBatleActive && this.boss.isBossAlive())
+    if(this.emojiiBatleActive && this.boss.getEncounterHasEnded())
     {
       this.emojiiBatleActive = false;
       this.boss = null;
@@ -48,7 +48,7 @@ export class InputHandler
       }
       else if (commandStr == InputHandler.ABORT_BATTLE_COMMAND)
       {
-        this.abortEmojiiBattle();
+        this.abortEmojiiBattle(message.channel);
       }
       else if (commandStr == InputHandler.HELP_COMMAND)
       {
@@ -100,23 +100,34 @@ export class InputHandler
   */
   private startEmojiiBatle(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    this.emojiiBatleActive = true;
-    this.boss = new Boss(channel);
-    this.boss.spawn();
-    // TODO start battle
-
-    // TODO spawn boss
-
-    // TODO declare battle channel
+    if(!this.emojiiBatleActive)
+    {
+      this.emojiiBatleActive = true;
+      this.boss = new Boss(channel);
+      this.boss.spawn();
+    }
+    else
+    {
+        channel.send("Cannot start battle. Battle is already active.\n\nType '.ebb abort' to abort current battle.");
+    }
   }
 
   /**
   * Aborts the current emojii battle, if active
+  * @param {Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel} channel
+           the channel the battle will take place in.
   */
-  private abortEmojiiBattle() : void
+  private abortEmojiiBattle(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    this.boss.abort(); //TODO await?
-    this.emojiiBatleActive = false;
+    if(this.emojiiBatleActive)
+    {
+      this.boss.abort(); //TODO await?
+      this.emojiiBatleActive = false;
+    }
+    else
+    {
+        channel.send("Cannot abort battle. No battle is active.\n\nType '.ebb start' to begin battle.");
+    }
   }
 
   /**

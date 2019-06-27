@@ -8,34 +8,14 @@ export class BossDialogGenerator
   private static readonly EMPTY_HEART_EMOJII = ":black_heart:";
   private static readonly HALF_HEART_EMOJII = ":broken_heart";
 
-  private static readonly SPACER = "----------------------------";
-  private static readonly MINOR_SPACER = "------------------";
+  public static readonly SPACER = "----------------------------";
+  public static readonly MINOR_SPACER = "------------------";
 
   constructor()
   {
 
   }
 
-  /**
-  * Returns a string representing the encounter status.
-  * @param {string} bossName the name of the boss
-  * @param {string} bossEmojii the emojii representation of the boss
-  * @param {number} currentHealth the current health of the boss
-  * @param {number} maxHealth the maximum health of the boss
-  * @param {EmojiiCombo[]} emojiiCombos the available emojii combos
-  *
-  * @return {string} a string representing the encounter status
-  */
-  getFullStatus(bossName : string, bossEmojii: string, currentHealth: number, maxHealth: number, emojiiCombos: EmojiiCombo[])
-  {
-    let statusStr = BossDialogGenerator.SPACER + "\n" +
-    this.getBossStatus(bossName, bossEmojii, currentHealth, maxHealth) + "\n" +
-    BossDialogGenerator.MINOR_SPACER + "\n" +
-    this.getComboStatus(emojiiCombos) + "\n" +
-    BossDialogGenerator.SPACER;
-
-    return statusStr;
-  }
 
   /**
   * Returns a string representing the boss status.
@@ -55,18 +35,18 @@ export class BossDialogGenerator
 
   /**
   * Returns a description of available emojii combos
-  * @param {EmojiiCombo[]} emojiiCombos the available emojii combos
+  * @param {EmojiiCombo[]} emojiiComboList the ;list of available emojii combos
   *
-  * @return {string} a string representing all emojii combos
+  * @return {string} a string representing the list of all emojii combos
   */
-  getComboStatus(emojiiCombos : EmojiiCombo[])
+  getComboStatus(emojiiComboList : EmojiiCombo[])
   {
     let statusString = "";
-    for(let idx=0; idx < emojiiCombos.length; idx++)
+    for(let idx=0; idx < emojiiComboList.length; idx++)
     {
-      statusString = emojiiCombos[idx].getFullEmojiiStr() + "\n";
+      statusString = emojiiComboList[idx].getFullEmojiiStr() + "\n";
     }
-    statusString = statusString.substr(0, -1); // removes last newline
+    statusString = statusString.slice(0, -1); // removes last newline
     return statusString;
   }
 
@@ -83,12 +63,15 @@ export class BossDialogGenerator
     let returnableStr :string = "";
     if(currentHealth <= maxHealth && currentHealth >=0)
     {
+
        returnableStr = "- "; // add a non-emojii character so font stays small
        let numHalfHearts :number = Math.round(currentHealth/maxHealth * BossDialogGenerator.NUM_HEARTS_TO_DISPLAY * 2);
        let numFullHearts :number = Math.round(numHalfHearts/2);
        numHalfHearts -= numFullHearts * 2;
        let numEmptyHearts = BossDialogGenerator.NUM_HEARTS_TO_DISPLAY - numFullHearts - numHalfHearts;
-
+       console.log("has numHalfHearts" + numHalfHearts);
+       console.log("has numFullHearts" + numFullHearts);
+       console.log("has numEmptyHearts" + numEmptyHearts);
        for(let idx = 0; idx< numFullHearts; idx++)
        {
          returnableStr+= BossDialogGenerator.FULL_HEART_EMOJII + " ";
@@ -101,9 +84,10 @@ export class BossDialogGenerator
        {
          returnableStr+= BossDialogGenerator.EMPTY_HEART_EMOJII + " ";
        }
-
+      console.log(returnableStr);
        // Trim trailing space
-       returnableStr = returnableStr.substr(0, -1);
+       returnableStr = returnableStr.slice(0, -1);
+       console.log(returnableStr);
      }
      else
      {
