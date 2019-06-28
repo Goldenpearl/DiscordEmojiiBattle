@@ -1,4 +1,5 @@
 import {EmojiiCombo} from "./emojiiCombo"
+import {RandomUtils} from "./randomUtils"
 
 // Stretch Goal 1: Boss personality enum
 export class BossDialogGenerator
@@ -120,7 +121,7 @@ export class BossDialogGenerator
     let statusString = "";
     for(let idx=0; idx < emojiiComboList.length; idx++)
     {
-      statusString = emojiiComboList[idx].getFullEmojiiStr() + "\n";
+      statusString += emojiiComboList[idx].getFullEmojiiStr() + "\n";
     }
     statusString = statusString.slice(0, -1); // removes last newline
     return statusString;
@@ -188,14 +189,11 @@ export class BossDialogGenerator
     return `Ouch! ${source} did ${damage} damage.`;
   }
 
-  getBossTakesMediumDamage() : string
+  getBossTakesComboDamage(damage : number, combo : EmojiiCombo) : string
   {
-    return "Ouch!!";
-  }
-
-  getBossTakesMassiveDamage() : string
-  {
-    return "Ouch!!!";
+    let possibleStrs = ["BOOM!", "ZAP!", "Nice!", "Wow,", "Amazing!"];
+    let damageStr = RandomUtils.getRandomItemFromList(possibleStrs);
+    return `**${damageStr} ${combo.getName()} did ${damage} damage.**`;
   }
 
   getBossDefeat() : string

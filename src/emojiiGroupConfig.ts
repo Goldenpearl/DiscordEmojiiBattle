@@ -1,3 +1,67 @@
+
+let emojiiMapping :  {[key: string]: string}= {":cow:" : "🐮",
+":full_moon:" : "🌕",
+":rocket:" : "🚀",
+":fire:" : "🔥",
+":zap:" : "⚡",
+":leaves:" : "🍃",
+":fork_and_knife:" : "🍴",
+":hamburger:" : "🍔",
+":fries:" : "🍟",
+":high_heel:" : "👠",
+":dress:" : "👗",
+":bouquet:" : "💐",
+":purse:" : "👛",
+":closed_umbrella:" : "🌂",
+":rainbow:" : "🌈",
+":red_circle:" : "🔴",
+":green_apple:" : "🍏",
+":orange_book:" : "📙",
+":purple_heart:" : "💜",
+":small_blue_diamond:" : "🔹",
+":mushroom:" : "🍄",
+":chestnut:" : "🌰",
+":herb:" : "🌿",
+":dragon:" : "🐉",
+":gem:" : "💎",
+":candle:" : "🕯",
+":sparkles:" : "✨",
+":blue_book:" : "📘",
+":star:" : "⭐",
+":lollipop:" : "🍭",
+":chocolate_bar:" : "🍫",
+":cake:" : "🍰",
+":candy:" : "🍬",
+":bird:" : "🐦",
+":balloon:" : "🎈",
+":umbrella2:" : "☂",
+":grapes:" : "🍇",
+":melon:" : "🍈",
+":banana:" : "🍌",
+":tangerine:" : "🍊",
+":tomato:" : "🍅",
+":unicorn:" : "🦄",
+":ice_cream:" : "🍨",
+":sparkling_heart:" : "💖",
+":wolf:" : "🐺",
+":feet:" : "🐾",
+":evergreen_tree:" : "🌲",
+":butterfly:" : "🦋",
+":tulip:" : "🌷",
+":deciduous_tree:" : "🌳",
+":sunny:" : "☀",
+":squid:" : "🦑",
+":dolphin:" : "🐬",
+":crab:" : "🦀",
+":whale:" : "🐳",
+":tropical_fish:" : "🐠",
+":bug:" : "🐛",
+":bee:" : "🐝",
+":beetle:" : "🐞",
+":cloud_tornado:" : "🌪",
+":droplet:" : "💧",
+":shark:" : "🦈"}
+
 export enum EmojiiGroup{
   toTheMooooon,
   elementary,
@@ -29,6 +93,7 @@ export class EmojiiGroupConfig
   static getPossibleEmojiisInGroup(emojiiGroup : EmojiiGroup) : string[]
   {
     let returnable : string[] = [];
+    console.log("loop " + emojiiGroup);
     switch(emojiiGroup)
     {
       case EmojiiGroup.toTheMooooon:
@@ -85,6 +150,8 @@ export class EmojiiGroupConfig
       case EmojiiGroup.soLong:
       returnable = [":dolphin:",":rocket:"];
       break;
+      default:
+      returnable = [":squid:", ":dolphin:", ":crab:", ":whale:", ":tropical_fish:"]; // TODO remove
     }
     return returnable;
   }
@@ -156,3 +223,19 @@ export class EmojiiGroupConfig
     }
     return returnable;
   }
+
+  /**
+  * Returns an emojii as sent from discord in pure text format
+  * @param {string} emojiiStringFromDiscord an encoded emojii
+  * @return {string} a discord-formatted string representation of an emojii.
+  */
+  static translateEmojii(emojiiStringFromDiscord : string) : string
+  {
+    let returnable = emojiiMapping[emojiiStringFromDiscord];
+    if(!returnable)
+    {
+      returnable = "";
+    }
+    return returnable;
+  }
+}

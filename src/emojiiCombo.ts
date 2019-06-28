@@ -21,6 +21,16 @@ export class EmojiiCombo {
   }
 
   /**
+  * Returns the name of the emojii combo
+  *
+  * @return {string} the name of the combo
+  */
+  public getName() : string
+  {
+    return this.emojiiComboName;
+  }
+
+  /**
   * Returns the emojii combo
   *
   * @return {string[]} the list of emojii in the combo

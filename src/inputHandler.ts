@@ -8,13 +8,13 @@ export class InputHandler
   private static readonly ABORT_BATTLE_COMMAND : string = "abort"; // TODO alternate phrasings
   private static readonly HELP_COMMAND : string = "help"; // TODO alternate phrasings
 
-  private emojiiBatleActive: boolean;
+  private emojiiBattleActive: boolean;
   private boss : any; // Had to turn off type checking, since Discord's message classes don't have default initializers
 
   // TODO currently boss battle can only take place in one channel at a time
   constructor ()
   {
-    this.emojiiBatleActive = false;
+    this.emojiiBattleActive = false;
     this.boss = null;
   };
 
@@ -25,19 +25,14 @@ export class InputHandler
   */
   public handleInput(message : Discord.Message) : void
   {
-    let textInput:string = message.content;
-    if(textInput == "hello")
-    {
-      message.reply("hi");
-    }
 
-    console.log("MESSAGE RECEIVED" + message);
-    console.log("MESSAGE RECEIVED" + message.content);
+    let textInput:string = message.content;
+        console.log(textInput);
     // handle boss early defeat
     // TODO implement in a more graceful way, e.g. listener or referenced variable
-    if(this.emojiiBatleActive && this.boss.getEncounterHasEnded())
+    if(this.emojiiBattleActive && this.boss.getEncounterHasEnded())
     {
-      this.emojiiBatleActive = false;
+      this.emojiiBattleActive = false;
       this.boss = null;
     }
 
@@ -61,7 +56,7 @@ export class InputHandler
         this.displayInvalidCommand(message.channel);
       }
     }
-    else if(this.emojiiBatleActive && message.channel.id == this.boss.getBossChannelId()
+    else if(this.emojiiBattleActive && message.channel.id == this.boss.getBossChannelId()
       && InputHandler.isEmojii(textInput))
     {
       // Handle boss fight commands
@@ -117,9 +112,9 @@ export class InputHandler
   */
   private startEmojiiBatle(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    if(!this.emojiiBatleActive)
+    if(!this.emojiiBattleActive)
     {
-      this.emojiiBatleActive = true;
+      this.emojiiBattleActive = true;
       this.boss = new Boss(channel);
       this.boss.spawn();
     }
@@ -136,10 +131,10 @@ export class InputHandler
   */
   private abortEmojiiBattle(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    if(this.emojiiBatleActive)
+    if(this.emojiiBattleActive)
     {
       this.boss.abort(); //TODO await?
-      this.emojiiBatleActive = false;
+      this.emojiiBattleActive = false;
     }
     else
     {
@@ -154,7 +149,7 @@ export class InputHandler
   */
   private displayHelp(channel : Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel) : void
   {
-    if(this.emojiiBatleActive)
+    if(this.emojiiBattleActive)
     {
       channel.send("Cannot display full help options during battle.\n\n"+
         `Type '${InputHandler.COMMAND_PREFIX} ${InputHandler.ABORT_BATTLE_COMMAND}' to abort battle.`);

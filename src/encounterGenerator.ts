@@ -2,13 +2,13 @@ import * as Discord from "discord.js";
 import {MiniBoss} from "./miniBoss";
 import {EmojiiGroup, EmojiiGroupConfig} from "./emojiiGroupConfig";
 import {EmojiiCombo} from "./emojiiCombo";
-import {Encounter} from "./encounter";
 import {sleep} from "./sleepUtilities";
+import {RandomUtils} from "./randomUtils";
 
 export class EncounterGenerator
 {
-  private static readonly MIN_EMOJII_COMBOS = 3;
-  private static readonly MAX_EMOJII_COMBOS = 3;
+  private static readonly MIN_EMOJII_COMBOS = 2;
+  private static readonly MAX_EMOJII_COMBOS = 2;
 
   private static readonly BOSS_MAX_TIME = 10;
   private static readonly BOSS_MIN_TIME = 10;
@@ -27,9 +27,14 @@ export class EncounterGenerator
   */
   public static generateBoss() : MiniBoss
   {
+
+    let listOfBossIdentities : [string, string][] = [
+      ['Gargal the Destroyer', ':dolphin:']
+    ];
     // Boss Name
-    let bossName = "Gargal The Destroyer";
-    let bossEmojii = ":dolphin:";
+    let bossIdentity = RandomUtils.getRandomItemFromList(listOfBossIdentities)
+    let bossName = bossIdentity[0];
+    let bossEmojii = bossIdentity[1];
     let bossMaxHealth = EncounterGenerator.BOSS_MAX_HEALTH;
     //let bossTimeLimit = EncounterGenerator.BOSS_MIN_TIME; // TODO future
     return new MiniBoss(bossName, bossEmojii, bossMaxHealth);
@@ -46,7 +51,7 @@ export class EncounterGenerator
     let comboList :EmojiiCombo[] = [];
 
     // Number of emojii combos
-    let numberOfEmojiiCombos = this.getRandomValueFromMinToMax(EncounterGenerator.MIN_EMOJII_COMBOS, EncounterGenerator.MAX_EMOJII_COMBOS);
+    let numberOfEmojiiCombos = RandomUtils.getRandomValueFromMinToMax(EncounterGenerator.MIN_EMOJII_COMBOS, EncounterGenerator.MAX_EMOJII_COMBOS);
 
     // Number of characters in emojii combo.
     let comboLengths : {[key: string]: number[]} = {
@@ -54,6 +59,7 @@ export class EncounterGenerator
       'medium': [5,6],
       'long': [7,8]
     }
+
     // Must be at least one non-long and non-short combo
     let containsNonLongCombo = false;
     let containsNonShortCombo = false;
@@ -93,21 +99,29 @@ export class EncounterGenerator
       }
 
       // Calculate a combo length
-      comboLength = this.getRandomItemFromList(comboLengths[randomComboKey]);
-
+      comboLength = RandomUtils.getRandomItemFromList(comboLengths[randomComboKey]);
+      console.log("Combo length " + comboLength);
       // Get combo group and name
       // No more than 50% of the combo can be a duplicate character.
       let randomEmojiiGroup : EmojiiGroup = EmojiiGroup.toTheMooooon; // default value; will be overwritten
       let possibleEmojiisInGroup : string[] = [];
-      while(possibleEmojiisInGroup.length < Math.floor(comboLength / 2))
+      let minEmojiiNum = Math.floor(comboLength / 2)
+      while(possibleEmojiisInGroup.length < minEmojiiNum)
       {
-        randomEmojiiGroup= this.getRandomItemFromList(Object.keys(EmojiiGroup));
+        randomEmojiiGroup= RandomUtils.getRandomItemFromList(Object.keys(EmojiiGroup));
         possibleEmojiisInGroup = EmojiiGroupConfig.getPossibleEmojiisInGroup(randomEmojiiGroup);
+        console.log("randomEmojiiGroup" + randomEmojiiGroup);
+        console.log("Combo length " + comboLength);
+        console.log("minEmojiiNum " + minEmojiiNum);
+        console.log("possibleEmojiisInGroup " + possibleEmojiisInGroup);
       }
+      console.log("Emojii Group " + randomEmojiiGroup);
+      console.log("Emojii Group items " + possibleEmojiisInGroup);
 
       let possibleNamesInGroup = EmojiiGroupConfig.getPossibleNamesInGroup(randomEmojiiGroup);
-      let comboName = this.getRandomItemFromList(possibleNamesInGroup);
+      let comboName = RandomUtils.getRandomItemFromList(possibleNamesInGroup);
 
+      console.log("comboName " + comboName);
       // Exact characters of emojii combo
       // At least 50% of the length of the combo must be unique
       let emojiiComboContents : string[] = [];
@@ -119,12 +133,12 @@ export class EncounterGenerator
         {
           // Add unique character
           let availableEmojiiCharacters = possibleEmojiisInGroup.filter(function(item){return !emojiiComboContents.includes(item)});
-          nextEmojiiInCombo = this.getRandomItemFromList(availableEmojiiCharacters);
+          nextEmojiiInCombo = RandomUtils.getRandomItemFromList(availableEmojiiCharacters);
         }
         else
         {
           // Add any character. (Possibly a duplicate)
-          nextEmojiiInCombo = this.getRandomItemFromList(possibleEmojiisInGroup);
+          nextEmojiiInCombo = RandomUtils.getRandomItemFromList(possibleEmojiisInGroup);
           if(emojiiComboContents.includes(nextEmojiiInCombo))
           {
             numDuplicates++;
@@ -133,42 +147,24 @@ export class EncounterGenerator
         emojiiComboContents.push(nextEmojiiInCombo);
       }
 
+        console.log("emojiiComboContents " + emojiiComboContents);
       // Randomize combo order
       emojiiComboContents = emojiiComboContents.sort(function(){ return 0.5 - Math.random()});
+      console.log("emojiiComboContents " + emojiiComboContents);
 
       // Damage range of emojii combo
       // Step 1: Get base value (BASE_COMBO_DMG * Length squared; for each duplicate emojii, multiply by 90%)
       let baseDamage = (EncounterGenerator.BASE_COMBO_DMG * comboLength*comboLength * Math.pow(0.9, numDuplicates));
 
       // Step 2: Add delta (30%-70% wobble)
-      let damageWobble = this.getRandomValueFromMinToMax(EncounterGenerator.MIN_DAMAGE_WOBBLE, EncounterGenerator.MAX_DAMAGE_WOBBLE);
-      let minDamage = baseDamage - Math.floor(baseDamage * damageWobble);
-      let maxDamage = baseDamage + Math.floor(baseDamage * damageWobble);
-
+      let damageWobble = RandomUtils.getRandomValueFromMinToMax(EncounterGenerator.MIN_DAMAGE_WOBBLE, EncounterGenerator.MAX_DAMAGE_WOBBLE);
+      let minDamage = Math.floor((baseDamage - baseDamage * damageWobble));
+      let maxDamage = Math.floor(baseDamage + (baseDamage * damageWobble));
+      console.log("minDamage " + emojiiComboContents);
+      console.log("maxDamage " + emojiiComboContents);
       // Add emojii combo to list
       comboList.push(new EmojiiCombo(comboName, emojiiComboContents, minDamage, maxDamage));
     }
     return comboList;
-  }
-
-  /**
-  * Returns a random item from the list.
-  * @param {any[]} listToProcess the list to search.
-  * @return {any} randomly selected item
-  */
-  private static getRandomItemFromList(listToProcess: any[]) : any
-  {
-    return listToProcess[Math.floor(Math.random() * listToProcess.length)];
-  }
-
-  /**
-  * Returns a random value between the given range.
-  * @param {number} min the minimum possible value
-  * @param {number} max the maximum possible value
-  * @return {number} randomly selected value between the given range
-  */
-  private static getRandomValueFromMinToMax(min: number, max:number) : number
-  {
-    return Math.random()*(max-min) + min;
   }
 }

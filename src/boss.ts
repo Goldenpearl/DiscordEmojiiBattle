@@ -1,27 +1,24 @@
 import * as Discord from "discord.js";
 import {BossDialogGenerator} from "./bossDialogGenerator";
+import {EncounterGenerator} from "./encounterGenerator";
+import {MiniBoss} from "./miniBoss";
 import {OutputHandler} from "./outputHandler";
 import {EmojiiCombo} from "./emojiiCombo";
+import {RandomUtils} from "./randomUtils";
 import {sleep} from "./sleepUtilities";
 
 export class Boss{
-  private static readonly DEFAULT_HEALTH : number = 2;
-  private static readonly DEFAULT_BOSS_NAME : string = "Gargal the Destroyer";
-  private static readonly DEFAULT_BOSS_EMOJII : string = ":dolphin:";
-  private static readonly DEFAULT_EMOJII_COMBO_1 : EmojiiCombo = new EmojiiCombo("Starborn Fury", [":heart:", ":star:", ":moon:"]);
   private static readonly DEFAULT_MAX_MESSAGES_BEFORE_BOSS_UPDATE : number = 10;
   private static readonly MSG_INTERVAL : number = 1000;
   private static readonly TIME_WARNING_INTERVAL: number = 10;
   private static readonly DEFAULT_ENCOUNTER_LENGTH = 30;
+  private static readonly MAX_SLIDING_WINDOW_LENGTH = 8;
 
   private outputHandler : OutputHandler;
   private dialogGenerator : BossDialogGenerator;
   private bossChannelId : Discord.Snowflake;
 
-  private bossName : string;
-  private bossEmojii : string;
-  private bossMaxHealth : number;
-  private bossCurrentHealth : number;
+  private miniboss : MiniBoss;
   private emojiiComboList : EmojiiCombo[];
   private emojiiSlidingWindow : string[];
 
@@ -43,19 +40,15 @@ export class Boss{
     this.bossChannelId = channel.id;
 
     // Initialize encounter settings (combat)
-    this.bossName = Boss.DEFAULT_BOSS_NAME;
-    this.bossEmojii = Boss.DEFAULT_BOSS_EMOJII;
-    this.emojiiComboList  = [Boss.DEFAULT_EMOJII_COMBO_1];
+    this.miniboss = EncounterGenerator.generateBoss();
+    this.emojiiComboList  = EncounterGenerator.generateEmojiiCombos();
     this.emojiiSlidingWindow = [];
-    this.bossMaxHealth = Boss.DEFAULT_HEALTH;
-    this.bossCurrentHealth = Boss.DEFAULT_HEALTH;
 
     // Initialize encounter settings (I/O)
     this.isBossEncounterOver = false;
     this.numMessagesWithoutBossStatus = 0;
     this.outputMsgBuffer = [];
     this.numSecondsInEncounter = 0;
-
   }
 
   /**
@@ -85,15 +78,41 @@ export class Boss{
   {
     if(!this.isBossEncounterOver)
     {
-      // Determine if the emojii is present in any combo (sliding window)
-
-      // Determine damage
+      // Default damage/source
       let damage : number = 1;
       let source = `${username}'s ${emojiiInput}`;
+      let damageMsg = this.dialogGenerator.getBossTakesMinorDamage(damage, source);
+
+      // Determine if the emojii is present in any combo (sliding window)
+      this.emojiiSlidingWindow.push(EmojiiGroupConfig.translateEmojii(emojiiInput));
+      if(this.emojiiSlidingWindow.length > Boss.MAX_SLIDING_WINDOW_LENGTH)
+      {
+        this.emojiiSlidingWindow.pop();
+      }
+
+      let slidingWindowStr = this.emojiiSlidingWindow.toString();
+      console.log("sliding window" + slidingWindowStr);
+      for(let idx=0; idx<this.emojiiComboList.length; idx++)
+      {
+        let emojiiCombo = this.emojiiComboList[idx];
+        let comboRegExp = RegExp(emojiiCombo.getEmojiiCombo().toString());
+        console.log("combo " + comboRegExp);
+        if(slidingWindowStr.match(comboRegExp))
+        {
+          // if a combo occurs
+          let dmgRange = emojiiCombo.getDamageRange();
+          damage = Math.floor(RandomUtils.getRandomValueFromMinToMax(dmgRange[0], dmgRange[1]));
+          damageMsg = this.dialogGenerator.getBossTakesComboDamage(damage, emojiiCombo);
+
+          // Clear sliding window
+          this.emojiiSlidingWindow = [];
+          break;
+        }
+      }
 
       // Display combo status and damage
-      this.outputMsgBuffer.push(this.dialogGenerator.getBossTakesMinorDamage(damage, source));
-      this.bossCurrentHealth = this.bossCurrentHealth - damage;
+      this.outputMsgBuffer.push(damageMsg);
+      this.miniboss.takeDamage(damage);
 
       // TODO add boss taunts at certain thresholds
 
@@ -102,7 +121,7 @@ export class Boss{
       console.log("num messages " + this.numMessagesWithoutBossStatus);
 
       // Handle boss defeat, if needed
-      if(this.bossCurrentHealth <= 0)
+      if(this.miniboss.getCurrentHealth() <= 0)
       {
         this.handleBossDefeat();
       }
@@ -124,7 +143,7 @@ export class Boss{
   public abort() : void
   {
     // TODO display health percentage and time
-    this.outputHandler.outputToChannel(`Boss was aborted early. (${this.bossCurrentHealth}/${this.bossMaxHealth}HP)`);
+    this.outputHandler.outputToChannel(`Boss was aborted early. (${this.miniboss.getCurrentHealth()}/${this.miniboss.getMaxHealth}HP)`);
     this.endBossEncounter();
   }
 
@@ -146,10 +165,11 @@ export class Boss{
   private handleBossDefeat() : void
   {
     // Get framed boss defeat message
-    let bossDefeatMsg = this.dialogGenerator.getFramedBossMessage(this.bossEmojii, this.dialogGenerator.getBossDefeat());
+    let bossDefeatMsg = this.dialogGenerator.getFramedBossMessage(this.miniboss.getEmojii(),
+      this.dialogGenerator.getBossDefeat());
 
     // Get victory summary
-    bossDefeatMsg += "\n\n:star:**"+this.bossName+" was defeated!**:star:"
+    bossDefeatMsg += "\n\n:star:**"+this.miniboss.getName()+" was defeated!**:star:"
     this.outputHandler.outputToChannel(bossDefeatMsg);
     this.endBossEncounter();
   }
@@ -161,11 +181,11 @@ export class Boss{
   {
     //----------------------------
     // Gargal the Destroyer
-    this.outputHandler.outputToChannel(BossDialogGenerator.SPACER +"\n" + this.bossName);
+    this.outputHandler.outputToChannel(BossDialogGenerator.SPACER +"\n" + this.miniboss.getName());
 
     // Output emojii by itself to make it large
     // :dolphin:
-    this.outputHandler.outputToChannel(this.bossEmojii);
+    this.outputHandler.outputToChannel(this.miniboss.getEmojii());
 
     // Output Health bar and a verbos description of emojii combos
     //- :heart: :heart: :heart: :heart: :heart: :broken_heart:  :black_heart: :black_heart:
@@ -177,7 +197,7 @@ export class Boss{
     //Fruit Ninja
     //- :melon: :tangerine: :melon: :tangerine: :melon: :tangerine: :melon: (45-65 dmg)
     this.outputHandler.outputToChannel(
-      this.dialogGenerator.getBossHealthStatus(this.bossCurrentHealth, this.bossMaxHealth) +
+      this.dialogGenerator.getBossHealthStatus(this.miniboss.getMaxHealth(), this.miniboss.getMaxHealth()) +
       "\n" +  BossDialogGenerator.MINOR_SPACER + "\n" +
       this.dialogGenerator.getComboStatus(this.emojiiComboList) +"\n" + BossDialogGenerator.SPACER
     );

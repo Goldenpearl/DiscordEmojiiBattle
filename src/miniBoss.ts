@@ -1,25 +1,25 @@
 export class MiniBoss{
-  private bossName : string;
+  private name : string;
   private bossEmojii: string;
-  private bossMaxHealth : number;
-  private bossCurrentHealth : number;
+  private maxHealth : number;
+  private currentHealth : number;
 
   constructor(bossName : string, bossEmojii : string, bossMaxHealth : number)
   {
-    this.bossName = bossName;
+    this.name = bossName;
     this.bossEmojii = bossEmojii;
-    this.bossMaxHealth = bossMaxHealth;
-    this.bossCurrentHealth = bossMaxHealth;
+    this.maxHealth = bossMaxHealth;
+    this.currentHealth = bossMaxHealth;
   }
 
   public getMaxHealth() : number
   {
-    return this.bossMaxHealth;
+    return this.maxHealth;
   }
 
   public getCurrentHealth() : number
   {
-    return this.bossMaxHealth;
+    return this.currentHealth;
   }
 
   public getEmojii() : string
@@ -29,6 +29,18 @@ export class MiniBoss{
 
   public getName() : string
   {
-    return this.bossName;
+    return this.name;
+  }
+
+  public takeDamage(damageToTake : number) : void
+  {
+    if(this.currentHealth < damageToTake)
+    {
+      this.currentHealth = 0;
+    }
+    else
+    {
+      this.currentHealth-=damageToTake;
+    }
   }
 };
