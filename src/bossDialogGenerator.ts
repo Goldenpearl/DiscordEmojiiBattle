@@ -16,6 +16,82 @@ export class BossDialogGenerator
 
   }
 
+  /**
+  * Returns a string representing the boss dialog, in a frame
+  * @param {string} bossEmojii the emojii representation of the boss
+  * @param {string} message the dialog which the boss will speak
+  *
+  * @return {string} a string representing the boss dialog, in a frame
+  */
+  getFramedBossMessage(bossEmojii: string, message: string) : string
+  {
+    return BossDialogGenerator.MINOR_SPACER + "\n" + bossEmojii+" " + message +"\n"+BossDialogGenerator.MINOR_SPACER;
+  }
+
+  /**
+  * Returns a string representing the boss status.
+  * @param {string} bossName the name of the boss
+  * @param {string} bossEmojii the emojii representation of the boss
+  * @param {number} currentHealth the current health of the boss
+  * @param {number} maxHealth the maximum health of the boss
+  * @return {string} an introduction to the boss when it first spawns.
+  */
+  getBossIntro(bossName: string, bossEmojii: string, currentHealth:number, maxHealth: number) :string
+  {
+    let bossIntroStr = "You have summoned:\n"+BossDialogGenerator.MINOR_SPACER+"\n"+bossName+"\n";
+    bossIntroStr += this.getBossHealthStatus(currentHealth, maxHealth);
+    bossIntroStr+=BossDialogGenerator.MINOR_SPACER;
+    return bossIntroStr;
+  }
+
+  /**
+  * Returns an introduction to available emojii combos
+  * @param {EmojiiCombo[]} emojiiComboList the ;list of available emojii combos
+  * @return {string} an introduction to the emojii combos when the boss first spawns.
+  */
+  getAbilityIntro(emojiiComboList : EmojiiCombo[]) : string
+  {
+    let abilityIntroStr = "You have the following abilities at your disposal:"+BossDialogGenerator.MINOR_SPACER+"\n";
+    for(let idx=0; idx < emojiiComboList.length; idx++)
+    {
+      abilityIntroStr = emojiiComboList[idx].getFullEmojiiStr() + "\n\n";
+    }
+    abilityIntroStr = abilityIntroStr.slice(0, -1); // removes one of the two newline characters
+    abilityIntroStr+=BossDialogGenerator.MINOR_SPACER;
+    return abilityIntroStr;
+  }
+
+  /**
+  * Returns warning for encounter start time
+  * @param {EmojiiCombo[]} emojiiComboList the ;list of available emojii combos
+  * @return {string} an introduction to the emojii combos when the boss first spawns.
+  */
+  getEncounterWarning(numSecondsToDelay: number)
+  {
+    return ":hourglass: The encounter begins in " + numSecondsToDelay + "seconds";
+  }
+
+  /**
+  * Returns formatting for an encounter countdown number.
+  * @param {string} countdownNum the number of seconds remaining until the encounter.
+  */
+  getSecondCountdown(countdownNum: number)
+  {
+    let countdownStr = "";
+    if(countdownNum>9)
+    {
+      countdownStr = ".          **"+countdownNum+"**          ."; // 1 less space on the right than string below
+    }
+    if(countdownNum>0)
+    {
+      countdownStr = ".          **"+countdownNum+"**         .";
+    }
+    else
+    {
+       countdownStr = ".     ***BEGIN***     .";
+    }
+    return countdownStr;
+  }
 
   /**
   * Returns a string representing the boss status.

@@ -5,7 +5,7 @@ import {EmojiiCombo} from "./emojiiCombo";
 import {sleep} from "./sleepUtilities";
 
 export class Boss{
-  private static readonly DEFAULT_HEALTH : number = 20;
+  private static readonly DEFAULT_HEALTH : number = 2;
   private static readonly DEFAULT_BOSS_NAME : string = "Gargal the Destroyer";
   private static readonly DEFAULT_BOSS_EMOJII : string = ":dolphin:";
   private static readonly DEFAULT_EMOJII_COMBO_1 : EmojiiCombo = new EmojiiCombo("Starborn Fury", [":heart:", ":star:", ":moon:"]);
@@ -79,19 +79,20 @@ export class Boss{
   /**
   * Handles an emojii input during a boss fight
   * @param {string} textInput the string to process. (Should be an emojii)
+  * @param {string} username the name of the user who sent the emojii.
   */
-  public handleEmojiiInput(emojiiInput : string) : void
+  public handleEmojiiInput(emojiiInput : string, username: string) : void
   {
-    console.log("emojii detected");
     if(!this.isBossEncounterOver)
     {
       // Determine if the emojii is present in any combo (sliding window)
 
       // Determine damage
       let damage : number = 1;
+      let source = `${username}'s ${emojiiInput}`;
 
       // Display combo status and damage
-      this.outputMsgBuffer.push(this.dialogGenerator.getBossTakesMinorDamage(damage, emojiiInput));
+      this.outputMsgBuffer.push(this.dialogGenerator.getBossTakesMinorDamage(damage, source));
       this.bossCurrentHealth = this.bossCurrentHealth - damage;
 
       // TODO add boss taunts at certain thresholds
@@ -113,7 +114,6 @@ export class Boss{
   */
   public spawn() : void
   {
-    this.outputHandler.outputToChannel("This is a test to spawn the boss");
     this.outputBossFullStatus();
     this.outputMsgBufferLoop();
   }
@@ -145,7 +145,12 @@ export class Boss{
   */
   private handleBossDefeat() : void
   {
-    this.outputHandler.outputToChannel(this.dialogGenerator.getBossDefeat());
+    // Get framed boss defeat message
+    let bossDefeatMsg = this.dialogGenerator.getFramedBossMessage(this.bossEmojii, this.dialogGenerator.getBossDefeat());
+
+    // Get victory summary
+    bossDefeatMsg += "\n\n:star:**"+this.bossName+" was defeated!**:star:"
+    this.outputHandler.outputToChannel(bossDefeatMsg);
     this.endBossEncounter();
   }
 
@@ -194,6 +199,7 @@ export class Boss{
     while(!this.isBossEncounterOver)
     {
       console.log("tick " + this.numSecondsInEncounter);
+
       // Output combo information
       let comboOutputMsg = "";
       let outputMsgBufferSize = this.outputMsgBuffer.length;
@@ -202,6 +208,10 @@ export class Boss{
         comboOutputMsg+=this.outputMsgBuffer.pop() + "\n";
       }
       comboOutputMsg = comboOutputMsg.slice(0, -1);
+      if(comboOutputMsg)
+      {
+        this.outputHandler.outputToChannel(comboOutputMsg);
+      }
 
       // Output boss status summary, if needed
       if(this.numMessagesWithoutBossStatus >= Boss.DEFAULT_MAX_MESSAGES_BEFORE_BOSS_UPDATE)

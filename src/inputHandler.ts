@@ -64,11 +64,9 @@ export class InputHandler
     else if(this.emojiiBatleActive && message.channel.id == this.boss.getBossChannelId()
       && InputHandler.isEmojii(textInput))
     {
-      message.reply("used an emojii");
       // Handle boss fight commands
-      this.boss.handleEmojiiInput(textInput);
+      this.boss.handleEmojiiInput(textInput, message.author.username);
     }
-
   }
 
   /**
@@ -109,7 +107,6 @@ export class InputHandler
         isEmojii = true;
       }
     }
-    console.log("Is emojii:" + isEmojii);
     return isEmojii;
   }
 

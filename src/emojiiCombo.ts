@@ -9,14 +9,15 @@ export class EmojiiCombo {
   *
   * @param {string} emojiiComboName the title of the emojii combo
   * @param {string[]} emojiiCombo a list of emojii in the combo
+  * @param {number} minDamage the minimum amound of damage caused by the emojii combo
+  * @param {number} maxDamage the maximum amound of damage caused by the emojii combo
   */
-  constructor(emojiiComboName: string, emojiiCombo: string[])
+  constructor(emojiiComboName: string, emojiiCombo: string[], minDamage: number, maxDamage: number)
   {
     this.emojiiComboName = emojiiComboName;
     this.emojiiCombo = emojiiCombo;
-    this.damageRange = EmojiiCombo.calculateComboDamageRange(emojiiCombo);
+    this.damageRange = [minDamage, maxDamage];
     this.fullEmojiiStr = EmojiiCombo.calculateFullEmojiiStr(this.emojiiComboName, this.emojiiCombo, this.damageRange);
-
   }
 
   /**
@@ -101,40 +102,6 @@ export class EmojiiCombo {
     // close the parenthesis
     helperString += ")";
     return helperString;
-  }
-
-  /**
-  * Calculate the damage of an emojii combo
-  * @param {string[]} emojiiCombo an array of emojii strings
-  *
-  * @return {number, number} the min damage, and the max damage
-  */
-  private static calculateComboDamageRange(emojiiCombo: string[]) : [number, number]
-  {
-    /*let comboDamage = 0;
-    let comboMultiplier = 5;
-    let comboLength = emojiiCombo.length;
-
-    // If only two emojii, reduce score by 30%. If all unique, increase score by 30%
-    let numberUniqueEmojii = 0;
-    let uniquenessMultiplier = 0.3;
-
-    // 1
-    // 4
-    // 16
-    // 36
-    // 64
-    // 100
-    // 144
-    // 196
-    // 256
-
-
-    //let comboDamage = comboMultiplier * comboLength * comboLength * numberUniqueEmojii/comboLength;
-
-    //let numberSameEmojiiInARow = 0; //
-    return comboDamage;*/
-    return [5, 15];
   }
 
   /**
