@@ -31,6 +31,8 @@ export class InputHandler
       message.reply("hi");
     }
 
+    console.log("MESSAGE RECEIVED" + message);
+    console.log("MESSAGE RECEIVED" + message.content);
     // handle boss early defeat
     // TODO implement in a more graceful way, e.g. listener or referenced variable
     if(this.emojiiBatleActive && this.boss.getEncounterHasEnded())
@@ -60,8 +62,7 @@ export class InputHandler
       }
     }
     else if(this.emojiiBatleActive && message.channel.id == this.boss.getBossChannelId()
-      //&& InputHandler.isEmojii(textInput))
-    )
+      && InputHandler.isEmojii(textInput))
     {
       message.reply("used an emojii");
       // Handle boss fight commands
@@ -78,20 +79,39 @@ export class InputHandler
   */
   private static isEmojii(textInput: string) : boolean
   {
-    // Discord emojii rules:
+    // Discord emojii rules for chat:
     // at least two characters long
     // can only contain alphanumeric characters and underscores
+    // THESE ARE NOT WHAT WE RECEIVE THOUGH
+
+    // We receive Unicode emojii
+    const STANDARD_EMOJII_REGEX = new RegExp("..?");
+
+    // We also receive discord custom emojii
+    const CUSTOM_EMOJII_REGEX = new RegExp("<a?:\\w+\\w+:\\d*>");
+
+    // Test message contents
     let isEmojii = false;
 
-    let isLongEnoughToBeEmojii = textInput.length >= 4;
-    if(isLongEnoughToBeEmojii)
+    // test for standard emojii
+    let regexMatches : RegExpMatchArray | null = textInput.match(STANDARD_EMOJII_REGEX);
+    if (regexMatches && regexMatches.length == 1 && regexMatches[0] == textInput)
     {
-      let emojiiRegex = new RegExp(":\w\w+:");
-      isEmojii = emojiiRegex.test(textInput);
+      isEmojii = true;
     }
+
+    // Test for custom emojii
+    if(!isEmojii)
+    {
+      regexMatches = textInput.match(CUSTOM_EMOJII_REGEX);
+      if (regexMatches && regexMatches.length == 1 && regexMatches[0] == textInput)
+      {
+        isEmojii = true;
+      }
+    }
+    console.log("Is emojii:" + isEmojii);
     return isEmojii;
   }
-
 
   /**
   * Starts a new emojii battle, if no other battle is active.
