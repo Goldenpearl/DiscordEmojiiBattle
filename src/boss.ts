@@ -1,6 +1,7 @@
 import * as Discord from "discord.js";
 import {BossDialogGenerator} from "./bossDialogGenerator";
 import {EncounterGenerator} from "./encounterGenerator";
+import {EmojiiGroupConfig} from "./emojiiGroupConfig";
 import {MiniBoss} from "./miniBoss";
 import {OutputHandler} from "./outputHandler";
 import {EmojiiCombo} from "./emojiiCombo";
@@ -10,8 +11,9 @@ import {sleep} from "./sleepUtilities";
 export class Boss{
   private static readonly DEFAULT_MAX_MESSAGES_BEFORE_BOSS_UPDATE : number = 10;
   private static readonly MSG_INTERVAL : number = 1000;
+  private static readonly ONE_SECOND : number = 1000;
   private static readonly TIME_WARNING_INTERVAL: number = 10;
-  private static readonly DEFAULT_ENCOUNTER_LENGTH = 30;
+  private static readonly DEFAULT_ENCOUNTER_LENGTH = 60;
   private static readonly MAX_SLIDING_WINDOW_LENGTH = 8;
 
   private outputHandler : OutputHandler;
@@ -24,6 +26,7 @@ export class Boss{
 
   private numMessagesWithoutBossStatus : number;
   private isBossEncounterOver : boolean;
+  private isBossEncounterInitialized: boolean;
   private outputMsgBuffer: string[];
   private numSecondsInEncounter : number;
 
@@ -46,6 +49,7 @@ export class Boss{
 
     // Initialize encounter settings (I/O)
     this.isBossEncounterOver = false;
+    this.isBossEncounterInitialized = false;
     this.numMessagesWithoutBossStatus = 0;
     this.outputMsgBuffer = [];
     this.numSecondsInEncounter = 0;
@@ -76,7 +80,7 @@ export class Boss{
   */
   public handleEmojiiInput(emojiiInput : string, username: string) : void
   {
-    if(!this.isBossEncounterOver)
+    if(!this.isBossEncounterOver && this.isBossEncounterInitialized)
     {
       // Default damage/source
       let damage : number = 1;
@@ -91,12 +95,10 @@ export class Boss{
       }
 
       let slidingWindowStr = this.emojiiSlidingWindow.toString();
-      console.log("sliding window" + slidingWindowStr);
       for(let idx=0; idx<this.emojiiComboList.length; idx++)
       {
         let emojiiCombo = this.emojiiComboList[idx];
         let comboRegExp = RegExp(emojiiCombo.getEmojiiCombo().toString());
-        console.log("combo " + comboRegExp);
         if(slidingWindowStr.match(comboRegExp))
         {
           // if a combo occurs
@@ -106,6 +108,9 @@ export class Boss{
 
           // Clear sliding window
           this.emojiiSlidingWindow = [];
+
+          // Queue a boss image update
+          this.numMessagesWithoutBossStatus = Boss.DEFAULT_MAX_MESSAGES_BEFORE_BOSS_UPDATE;
           break;
         }
       }
@@ -130,10 +135,56 @@ export class Boss{
 
   /**
   * Begins the boss fight
+  * @param {boolean} fastSpawn removes the waits in the spawn dialog.
   */
-  public spawn() : void
+  public async spawn(fastSpawn: boolean = false) : Promise<void>
   {
-    this.outputBossFullStatus();
+    // Output boss intro
+    let bossIntroStrPrefix = "You have summoned:\n"+BossDialogGenerator.MINOR_SPACER+"\n"+this.miniboss.getName();
+    let bossIntroStrSuffix = this.dialogGenerator.getBossHealthStatus(this.miniboss.getCurrentHealth(), this.miniboss.getMaxHealth())
+      + "\n" + BossDialogGenerator.MINOR_SPACER;
+    this.outputHandler.outputToChannel(bossIntroStrPrefix);
+    this.outputHandler.outputToChannel(this.miniboss.getEmojii());
+    this.outputHandler.outputToChannel(bossIntroStrSuffix);
+
+    // Give user time to process
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*3)};
+
+    // Output abilities
+    this.outputHandler.outputToChannel("You have the following abilities at your disposal:\n"+BossDialogGenerator.MINOR_SPACER+"\n");
+
+    for(let idx=0; idx < this.emojiiComboList.length; idx++)
+    {
+        // Give user time to process
+        if(!fastSpawn){await sleep(Boss.ONE_SECOND*3)};
+        this.outputHandler.outputToChannel(this.emojiiComboList[idx].getFullEmojiiStr() + "\n\n");
+    }
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*3)};
+    this.outputHandler.outputToChannel(BossDialogGenerator.MINOR_SPACER);
+
+    // Read the rules
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*3)};
+    this.outputHandler.outputToChannel("Send emojii at the boss, one at a time, to deal damage.\n");
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*5)};
+    this.outputHandler.outputToChannel("Complete an ability combo for bonus damage.\n"+BossDialogGenerator.MINOR_SPACER);
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*5)};
+
+    // Start countdown timer
+    let secondsToWait = 10;
+    this.outputHandler.outputToChannel(":hourglass: The encounter begins in " + secondsToWait + " seconds");
+    if(!fastSpawn){await sleep(Boss.ONE_SECOND*1)};
+    for(let idx=0; idx<secondsToWait;idx++)
+    {
+      if(secondsToWait-idx <= 3)
+      {
+        this.outputHandler.outputToChannel(this.dialogGenerator.getSecondCountdown(secondsToWait-idx));
+      }
+      await sleep(Boss.ONE_SECOND);
+    }
+
+    // Start encounter
+    this.outputHandler.outputToChannel(this.dialogGenerator.getSecondCountdown(0));
+    this.isBossEncounterInitialized = true;
     this.outputMsgBufferLoop();
   }
 
@@ -142,7 +193,9 @@ export class Boss{
   */
   public abort() : void
   {
-    // TODO display health percentage and time
+    // Empty message buffer
+    this.onOutputMsgBuffer();
+
     this.outputHandler.outputToChannel(`Boss was aborted early. (${this.miniboss.getCurrentHealth()}/${this.miniboss.getMaxHealth}HP)`);
     this.endBossEncounter();
   }
@@ -154,7 +207,11 @@ export class Boss{
   {
     if(!this.isBossEncounterOver)
     {
-      this.outputHandler.outputToChannel(this.dialogGenerator.getBossVictoryTaunt());
+      // Empty message buffer
+      this.onOutputMsgBuffer();
+
+      // Get boss message
+      this.outputHandler.outputToChannel(this.dialogGenerator.getBossVictoryTaunt(this.miniboss.getEmojii()));
       this.endBossEncounter();
     }
   }
@@ -164,9 +221,11 @@ export class Boss{
   */
   private handleBossDefeat() : void
   {
+    // Empty message buffer
+    this.onOutputMsgBuffer();
+
     // Get framed boss defeat message
-    let bossDefeatMsg = this.dialogGenerator.getFramedBossMessage(this.miniboss.getEmojii(),
-      this.dialogGenerator.getBossDefeat());
+    let bossDefeatMsg = this.dialogGenerator.getBossDefeat(this.miniboss.getEmojii());
 
     // Get victory summary
     bossDefeatMsg += "\n\n:star:**"+this.miniboss.getName()+" was defeated!**:star:"
@@ -181,11 +240,8 @@ export class Boss{
   {
     //----------------------------
     // Gargal the Destroyer
-    this.outputHandler.outputToChannel(BossDialogGenerator.SPACER +"\n" + this.miniboss.getName());
+    let outputStr = BossDialogGenerator.SPACER +"\n" + this.miniboss.getName() +"\n"+this.miniboss.getEmojii() + " ";
 
-    // Output emojii by itself to make it large
-    // :dolphin:
-    this.outputHandler.outputToChannel(this.miniboss.getEmojii());
 
     // Output Health bar and a verbos description of emojii combos
     //- :heart: :heart: :heart: :heart: :heart: :broken_heart:  :black_heart: :black_heart:
@@ -196,11 +252,12 @@ export class Boss{
     //- :red_circle: :droplet: :purple_heart: :yellow_heart: :purple_heart: :red_circle: :star: (82-116 dmg)
     //Fruit Ninja
     //- :melon: :tangerine: :melon: :tangerine: :melon: :tangerine: :melon: (45-65 dmg)
-    this.outputHandler.outputToChannel(
-      this.dialogGenerator.getBossHealthStatus(this.miniboss.getMaxHealth(), this.miniboss.getMaxHealth()) +
+    outputStr+=
+      this.dialogGenerator.getBossHealthStatus(this.miniboss.getCurrentHealth(), this.miniboss.getMaxHealth()) +
       "\n" +  BossDialogGenerator.MINOR_SPACER + "\n" +
-      this.dialogGenerator.getComboStatus(this.emojiiComboList) +"\n" + BossDialogGenerator.SPACER
-    );
+      this.dialogGenerator.getComboStatus(this.emojiiComboList) +"\n" + BossDialogGenerator.SPACER;
+
+    this.outputHandler.outputToChannel(outputStr);
   }
 
   /**
@@ -209,6 +266,10 @@ export class Boss{
   private endBossEncounter() : void
   {
     this.isBossEncounterOver = true;
+
+    // TODO display health percentage and time
+    //this.outputHandler.outputToChannel();
+
   }
 
   /**
@@ -218,20 +279,7 @@ export class Boss{
   {
     while(!this.isBossEncounterOver)
     {
-      console.log("tick " + this.numSecondsInEncounter);
-
-      // Output combo information
-      let comboOutputMsg = "";
-      let outputMsgBufferSize = this.outputMsgBuffer.length;
-      for(let idx = 0; idx<outputMsgBufferSize; idx++)
-      {
-        comboOutputMsg+=this.outputMsgBuffer.pop() + "\n";
-      }
-      comboOutputMsg = comboOutputMsg.slice(0, -1);
-      if(comboOutputMsg)
-      {
-        this.outputHandler.outputToChannel(comboOutputMsg);
-      }
+      this.onOutputMsgBuffer();
 
       // Output boss status summary, if needed
       if(this.numMessagesWithoutBossStatus >= Boss.DEFAULT_MAX_MESSAGES_BEFORE_BOSS_UPDATE)
@@ -253,5 +301,25 @@ export class Boss{
       await sleep(Boss.MSG_INTERVAL);
       this.numSecondsInEncounter++
     }
+  }
+
+  /**
+  * Output message buffer on an interval.
+  */
+  private onOutputMsgBuffer()
+  {
+    // Output combo information
+    let comboOutputMsg = "";
+    let outputMsgBufferSize = this.outputMsgBuffer.length;
+    for(let idx = 0; idx<outputMsgBufferSize; idx++)
+    {
+      comboOutputMsg+=this.outputMsgBuffer.pop() + "\n";
+    }
+    comboOutputMsg = comboOutputMsg.slice(0, -1);
+    if(comboOutputMsg)
+    {
+      this.outputHandler.outputToChannel(comboOutputMsg);
+    }
+
   }
 }

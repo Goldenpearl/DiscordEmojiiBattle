@@ -13,12 +13,12 @@ export class EncounterGenerator
   private static readonly BOSS_MAX_TIME = 10;
   private static readonly BOSS_MIN_TIME = 10;
 
-  private static readonly BOSS_MAX_HEALTH = 10;
+  private static readonly BOSS_MAX_HEALTH = 15;//500;
 
   private static readonly MAX_DAMAGE_WOBBLE = 0.35;
   private static readonly MIN_DAMAGE_WOBBLE = 0.15;
 
-  private static readonly BASE_COMBO_DMG = 10;
+  private static readonly BASE_COMBO_DMG = 5;
 
   /**
   * Generates a boss with a random name and emojii.
@@ -57,7 +57,7 @@ export class EncounterGenerator
     let comboLengths : {[key: string]: number[]} = {
       'short': [4],
       'medium': [5,6],
-      'long': [7,8]
+      'long': [6,7]
     }
 
     // Must be at least one non-long and non-short combo

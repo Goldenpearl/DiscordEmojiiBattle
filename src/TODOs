@@ -1,4 +1,9 @@
-- Handle combos
-- Add a emojii combo generator
-- Balance damage values
+- Debug randomizing Emojii enum for emojii combo generator
+
+- Add taunts
+- Health/ damage values
+
+
 - Test message rate
+- implement speed mode
+- Make boss more message compact? (Remove spell titles if needed)

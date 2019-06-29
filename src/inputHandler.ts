@@ -5,6 +5,7 @@ export class InputHandler
 {
   private static readonly COMMAND_PREFIX : string = ".ebb";
   private static readonly START_BATTLE_COMMAND : string= "start"; // TODO alternate phrasings
+  private static readonly START_FAST_BATTLE_COMMAND : string= "start fast";
   private static readonly ABORT_BATTLE_COMMAND : string = "abort"; // TODO alternate phrasings
   private static readonly HELP_COMMAND : string = "help"; // TODO alternate phrasings
 

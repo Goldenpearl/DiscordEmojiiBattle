@@ -1,5 +1,7 @@
 import {EmojiiCombo} from "./emojiiCombo"
+import {MiniBoss} from "./miniboss"
 import {RandomUtils} from "./randomUtils"
+import {OutputHandler} from "./outputHandler";
 
 // Stretch Goal 1: Boss personality enum
 export class BossDialogGenerator
@@ -27,49 +29,6 @@ export class BossDialogGenerator
   getFramedBossMessage(bossEmojii: string, message: string) : string
   {
     return BossDialogGenerator.MINOR_SPACER + "\n" + bossEmojii+" " + message +"\n"+BossDialogGenerator.MINOR_SPACER;
-  }
-
-  /**
-  * Returns a string representing the boss status.
-  * @param {string} bossName the name of the boss
-  * @param {string} bossEmojii the emojii representation of the boss
-  * @param {number} currentHealth the current health of the boss
-  * @param {number} maxHealth the maximum health of the boss
-  * @return {string} an introduction to the boss when it first spawns.
-  */
-  getBossIntro(bossName: string, bossEmojii: string, currentHealth:number, maxHealth: number) :string
-  {
-    let bossIntroStr = "You have summoned:\n"+BossDialogGenerator.MINOR_SPACER+"\n"+bossName+"\n";
-    bossIntroStr += this.getBossHealthStatus(currentHealth, maxHealth);
-    bossIntroStr+=BossDialogGenerator.MINOR_SPACER;
-    return bossIntroStr;
-  }
-
-  /**
-  * Returns an introduction to available emojii combos
-  * @param {EmojiiCombo[]} emojiiComboList the ;list of available emojii combos
-  * @return {string} an introduction to the emojii combos when the boss first spawns.
-  */
-  getAbilityIntro(emojiiComboList : EmojiiCombo[]) : string
-  {
-    let abilityIntroStr = "You have the following abilities at your disposal:"+BossDialogGenerator.MINOR_SPACER+"\n";
-    for(let idx=0; idx < emojiiComboList.length; idx++)
-    {
-      abilityIntroStr = emojiiComboList[idx].getFullEmojiiStr() + "\n\n";
-    }
-    abilityIntroStr = abilityIntroStr.slice(0, -1); // removes one of the two newline characters
-    abilityIntroStr+=BossDialogGenerator.MINOR_SPACER;
-    return abilityIntroStr;
-  }
-
-  /**
-  * Returns warning for encounter start time
-  * @param {EmojiiCombo[]} emojiiComboList the ;list of available emojii combos
-  * @return {string} an introduction to the emojii combos when the boss first spawns.
-  */
-  getEncounterWarning(numSecondsToDelay: number)
-  {
-    return ":hourglass: The encounter begins in " + numSecondsToDelay + "seconds";
   }
 
   /**
@@ -181,7 +140,8 @@ export class BossDialogGenerator
 
   getBossTaunt() : string
   {
-    return "Not strong enough!";
+    let bossTaunts = ["Not strong enough!", "Give up now, you fools!", "You will never defeat me!"]
+    return RandomUtils.getRandomItemFromList(bossTaunts);
   }
 
   getBossTakesMinorDamage(damage : number, source : string) : string
@@ -191,18 +151,22 @@ export class BossDialogGenerator
 
   getBossTakesComboDamage(damage : number, combo : EmojiiCombo) : string
   {
-    let possibleStrs = ["BOOM!", "ZAP!", "Nice!", "Wow,", "Amazing!"];
+    let possibleStrs = [":boom:BOOM!:boom:", ":zap:ZAP!:zap:", ":sparkles:Nice!:sparkles:", "Wow,", "Amazing!"];
     let damageStr = RandomUtils.getRandomItemFromList(possibleStrs);
     return `**${damageStr} ${combo.getName()} did ${damage} damage.**`;
   }
 
-  getBossDefeat() : string
+  getBossDefeat(bossEmojii: string) : string
   {
-    return "Noooooo!";
+    let defeatMsgs = ["Noooooo!", "Run away!", "Too strong..."];
+    let defeatMsg = RandomUtils.getRandomItemFromList(defeatMsgs);
+    return this.getFramedBossMessage(bossEmojii, defeatMsg);
   }
 
-  getBossVictoryTaunt() : string
+  getBossVictoryTaunt(bossEmojii: string) : string
   {
-    return "I win again!";
+    let victoryTaunts = ["I win again!", "MUAHAHAHA!", "Too slow!"];
+    let victoryTaunt = RandomUtils.getRandomItemFromList(victoryTaunts);
+    return this.getFramedBossMessage(bossEmojii, victoryTaunt);
   }
 };
