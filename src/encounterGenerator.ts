@@ -13,7 +13,7 @@ export class EncounterGenerator
   private static readonly BOSS_MAX_TIME = 10;
   private static readonly BOSS_MIN_TIME = 10;
 
-  private static readonly BOSS_MAX_HEALTH = 600;
+  private static readonly BOSS_MAX_HEALTH = 450;
 
   private static readonly MAX_DAMAGE_WOBBLE = 0.35;
   private static readonly MIN_DAMAGE_WOBBLE = 0.15;
@@ -29,7 +29,14 @@ export class EncounterGenerator
   {
 
     let listOfBossIdentities : [string, string][] = [
-      ['Gargal the Destroyer', ':dolphin:']
+      ['Gargal the Destroyer', ':dolphin:'],
+      ['Drax the Moonlord', ':new_moon_with_face:'],
+      ['Clippy', ':paperclip:'],
+      ['Giga Moth', ':butterfly:'],
+      ['Xardoth the Inconvenient', ':smiling_imp:'],
+      ['Overpriced Avocado', ':avocado:'],
+      ['Krax the Astronaut Cow', ':cow:'],
+      ['Horton Hears You', ':elephant:']
     ];
     // Boss Name
     let bossIdentity = RandomUtils.getRandomItemFromList(listOfBossIdentities)
