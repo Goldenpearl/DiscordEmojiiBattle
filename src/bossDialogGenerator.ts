@@ -138,10 +138,10 @@ export class BossDialogGenerator
     return "Hi there heroes!";
   }
 
-  getBossTaunt() : string
+  getBossTaunt(bossEmojii: string) : string
   {
     let bossTaunts = ["Not strong enough!", "Give up now, you fools!", "You will never defeat me!"]
-    return RandomUtils.getRandomItemFromList(bossTaunts);
+    return this.getFramedBossMessage(bossEmojii, RandomUtils.getRandomItemFromList(bossTaunts));
   }
 
   getBossTakesMinorDamage(damage : number, source : string) : string

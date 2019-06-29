@@ -13,7 +13,7 @@ export class EncounterGenerator
   private static readonly BOSS_MAX_TIME = 10;
   private static readonly BOSS_MIN_TIME = 10;
 
-  private static readonly BOSS_MAX_HEALTH = 15;//500;
+  private static readonly BOSS_MAX_HEALTH = 45;//500;
 
   private static readonly MAX_DAMAGE_WOBBLE = 0.35;
   private static readonly MIN_DAMAGE_WOBBLE = 0.15;
@@ -100,6 +100,15 @@ export class EncounterGenerator
 
       // Calculate a combo length
       comboLength = RandomUtils.getRandomItemFromList(comboLengths[randomComboKey]);
+      if(comboList.length > 0)
+      {
+        // Quick hack to prevent two combos of the same length
+        if(comboList[0].getEmojiiCombo().length == comboLength)
+        {
+          comboLength = comboLength-1;
+        }
+      }
+
       console.log("Combo length " + comboLength);
       // Get combo group and name
       // No more than 50% of the combo can be a duplicate character.

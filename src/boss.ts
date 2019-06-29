@@ -25,6 +25,7 @@ export class Boss{
   private emojiiSlidingWindow : string[];
 
   private numMessagesWithoutBossStatus : number;
+  private numMessagesWithoutBossTaunt : number;
   private isBossEncounterOver : boolean;
   private isBossEncounterInitialized: boolean;
   private outputMsgBuffer: string[];
@@ -51,6 +52,7 @@ export class Boss{
     this.isBossEncounterOver = false;
     this.isBossEncounterInitialized = false;
     this.numMessagesWithoutBossStatus = 0;
+    this.numMessagesWithoutBossTaunt = 0;
     this.outputMsgBuffer = [];
     this.numSecondsInEncounter = 0;
   }
@@ -119,7 +121,16 @@ export class Boss{
       this.outputMsgBuffer.push(damageMsg);
       this.miniboss.takeDamage(damage);
 
-      // TODO add boss taunts at certain thresholds
+      // Add boss taunts at certain thresholds
+      this.numMessagesWithoutBossTaunt++;
+      if(this.numMessagesWithoutBossTaunt > 15)
+      {
+        if(Math.random()>0.8)
+        {
+          this.outputMsgBuffer.push(this.dialogGenerator.getBossTaunt(this.miniboss.getEmojii()));
+        }
+        this.numMessagesWithoutBossTaunt = 0;
+      }
 
       // If needed, refresh boss UI
       this.numMessagesWithoutBossStatus++;
@@ -170,7 +181,7 @@ export class Boss{
     if(!fastSpawn){await sleep(Boss.ONE_SECOND*5)};
 
     // Start countdown timer
-    let secondsToWait = 10;
+    let secondsToWait = 5;
     this.outputHandler.outputToChannel(":hourglass: The encounter begins in " + secondsToWait + " seconds");
     if(!fastSpawn){await sleep(Boss.ONE_SECOND*1)};
     for(let idx=0; idx<secondsToWait;idx++)
@@ -210,8 +221,14 @@ export class Boss{
       // Empty message buffer
       this.onOutputMsgBuffer();
 
+      // Get framed boss defeat message
+      let bossVictoryMsg = this.dialogGenerator.getBossVictoryTaunt(this.miniboss.getEmojii());
+
+      // Get victory summary
+      bossVictoryMsg += "\n\n:broken_heart:**"+this.miniboss.getName()+" is victorious!**:broken_heart:"
+
       // Get boss message
-      this.outputHandler.outputToChannel(this.dialogGenerator.getBossVictoryTaunt(this.miniboss.getEmojii()));
+      this.outputHandler.outputToChannel(bossVictoryMsg);
       this.endBossEncounter();
     }
   }
