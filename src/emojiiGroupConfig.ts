@@ -62,7 +62,7 @@ let emojiiMapping :  {[key: string]: string}= {":cow:" : "🐮",
 "💧": ":droplet:" ,
 "🦈": ":shark:" }
 
-export enum EmojiiGroup{
+/*export enum EmojiiGroup{
   toTheMooooon,
   elementary,
   letThemEatSteak,
@@ -81,73 +81,73 @@ export enum EmojiiGroup{
   campingBuddies, //#not the bees
   apocalypse,
   soLong,
-};
+};*/
 
 export class EmojiiGroupConfig
 {
   /**
   * Returns a list of possible emojii in a given EmojiiGroup.
-  * @param {EmojiiGroup} emojiiGroup an enum representing a grouping of emojii characters
+  * @param {number} emojiiGroup an enum representing a grouping of emojii characters
   * @return {string[]} an array of emojii associated with the enum.
   */
-  static getPossibleEmojiisInGroup(emojiiGroup : EmojiiGroup) : string[]
+  static getPossibleEmojiisInGroup(emojiiGroup : number) : string[]
   {
     let returnable : string[] = [];
     console.log("loop " + emojiiGroup);
     switch(emojiiGroup)
     {
-      case EmojiiGroup.toTheMooooon:
+      case 1:
       returnable = [":cow:", ":full_moon:", ":rocket:"]; //:comet: :star:
       break;
-      case EmojiiGroup.elementary:
+      case 2:
       returnable = [":fire:",":droplet:",":zap:", ":leaves:"];
       break;
-      case EmojiiGroup.letThemEatSteak:
+      case 3:
       returnable = [":fork_and_knife:",":hamburger:",":fries:"];
       break;
-      case EmojiiGroup.shoppingSpree:
+      case 4:
       returnable = [":high_heel:", ":dress:", ":bouquet:", ":purse:", ":closed_umbrella:"];
       break;
-      case EmojiiGroup.colors:
+      case 5:
       returnable = [":rainbow:", ":red_circle:", ":green_apple:", ":orange_book:", ":purple_heart:", ":small_blue_diamond:"];
       break;
-      case EmojiiGroup.forestFriends:
+      case 6:
       returnable = [":mushroom:", ":chestnut:", ":herb:", ":evergreen_tree:"];
       break;
-      case EmojiiGroup.dragonsNest:
+      case 7:
       returnable = [":dragon:", ":fire:", ":gem:"];
       break;
-      case EmojiiGroup.wizardWonderland:
+      case 8:
       returnable =[":candle:", ":sparkles:", ":blue_book:", ":star:"];
       break;
-      case EmojiiGroup.sweetTooth:
+      case 9:
       returnable = [":lollipop:", ":chocolate_bar:", ":cake:", ":candy:"];
       break;
-      case EmojiiGroup.iBelieveICanFly:
+      case 10:
       returnable = [":bird:", ":balloon:", ":umbrella2:"];
       break;
-      case EmojiiGroup.technicallyBerries:
+      case 11:
       returnable = [":grapes:", ":melon:", ":banana:",":tangerine:", ":tomato:"]
       break;
-      case EmojiiGroup.unicornWishes:
+      case 12:
       returnable = [":unicorn:", ":rainbow:",":ice_cream:",":sparkles:",":sparkling_heart:"]
       break;
-      case EmojiiGroup.howl:
+      case 13:
       returnable = [":wolf:", ":feet:", ":full_moon:",":evergreen_tree:"]
       break;
-      case EmojiiGroup.spring:
+      case 14:
       returnable = [":butterfly:", ":bird:", ":tulip:",":deciduous_tree:",":sunny:"]
       break;
-      case EmojiiGroup.friends:
+      case 15:
       returnable = [":squid:", ":dolphin:", ":crab:", ":whale:", ":tropical_fish:"]
       break;
-      case EmojiiGroup.campingBuddies: //#notTheBees
+      case 16: //#notTheBees
       returnable = [":bug:", ":bee:", ":beetle:",":butterfly:"];
       break;
-      case EmojiiGroup.apocalypse:
+      case 17:
       returnable = [":cloud_tornado:", ":droplet:", ":shark:"];
       break;
-      case EmojiiGroup.soLong:
+      case 18:
       returnable = [":dolphin:",":rocket:"];
       break;
       default:
@@ -158,67 +158,67 @@ export class EmojiiGroupConfig
 
   /**
   * Returns a list of possible emojii combo names in a given EmojiiGroup.
-  * @param {EmojiiGroup} emojiiGroup an enum representing a grouping of emojii characters
+  * @param {EmojiiGroup} number an enum representing a grouping of emojii characters
   * @return {string[]} an array of possible emojii combo names associated with the enum.
   */
-  static getPossibleNamesInGroup(emojiiGroup : EmojiiGroup) : string[]
+  static getPossibleNamesInGroup(emojiiGroup : number) : string[]
   {
     console.log("Possible name: " + emojiiGroup);
     let returnable : string[] = [];
     switch(emojiiGroup)
     {
-      case EmojiiGroup.toTheMooooon:
+      case 1:
       returnable = ["Cow Powers", "To the Moooooon"];
       break;
-      case EmojiiGroup.elementary:
+      case 2:
       returnable = ["Super Effective", "Element Storm"];
       break;
-      case EmojiiGroup.letThemEatSteak:
+      case 3:
       returnable = ["Dehydration Ray"];
       break;
-      case EmojiiGroup.shoppingSpree:
+      case 4:
       returnable = ["Shopping Spree"];
       break;
-      case EmojiiGroup.colors:
+      case 5:
       returnable = ["Prismatic Laser"];
       break;
-      case EmojiiGroup.forestFriends:
+      case 6:
       returnable = ["Forage for Potions"];
       break;
-      case EmojiiGroup.dragonsNest:
+      case 7:
       returnable = ["Release the Dragon"];
       break;
-      case EmojiiGroup.wizardWonderland:
+      case 8:
       returnable =["Wizard Wonderland", "Magic Missle"];
       break;
-      case EmojiiGroup.sweetTooth:
+      case 9:
       returnable = ["Sweet Tooth", "Cavity Barrage"];
       break;
-      case EmojiiGroup.iBelieveICanFly:
+      case 10:
       returnable = ["Fly"];
       break;
-      case EmojiiGroup.technicallyBerries:
+      case 11:
       returnable = ["#technicallyBerries"]
       break;
-      case EmojiiGroup.unicornWishes:
+      case 12:
       returnable = ["Wish", "Imagination Beam"]
       break;
-      case EmojiiGroup.howl:
+      case 13:
       returnable = ["Wolf Guardians", "Howl"]
       break;
-      case EmojiiGroup.spring:
+      case 14:
       returnable = ["Spring Breeze"]
       break;
-      case EmojiiGroup.friends:
+      case 15:
       returnable = ["Tidal Force"]
       break;
-      case EmojiiGroup.campingBuddies:
+      case 16:
       returnable = ["#notTheBees:", "Forest Friends", "Lucky Bugs"];
       break;
-      case EmojiiGroup.apocalypse:
+      case 17:
       returnable = ["Apocalypse"];
       break;
-      case EmojiiGroup.soLong:
+      case 18:
       returnable = ["So Long!:","Rocket Surgery"];
       break;
     }

@@ -1,6 +1,6 @@
 import * as Discord from "discord.js";
 import {MiniBoss} from "./miniBoss";
-import {EmojiiGroup, EmojiiGroupConfig} from "./emojiiGroupConfig";
+import {EmojiiGroupConfig} from "./emojiiGroupConfig";
 import {EmojiiCombo} from "./emojiiCombo";
 import {sleep} from "./sleepUtilities";
 import {RandomUtils} from "./randomUtils";
@@ -13,7 +13,7 @@ export class EncounterGenerator
   private static readonly BOSS_MAX_TIME = 10;
   private static readonly BOSS_MIN_TIME = 10;
 
-  private static readonly BOSS_MAX_HEALTH = 45;//500;
+  private static readonly BOSS_MAX_HEALTH = 600;
 
   private static readonly MAX_DAMAGE_WOBBLE = 0.35;
   private static readonly MIN_DAMAGE_WOBBLE = 0.15;
@@ -110,19 +110,19 @@ export class EncounterGenerator
       }
       // Get combo group and name
       // No more than 50% of the combo can be a duplicate character.
-      let randomEmojiiGroup : EmojiiGroup = EmojiiGroup.toTheMooooon; // default value; will be overwritten
+      let randomEmojiiGroup : number = 1; // default value; will be overwritten
       let possibleEmojiisInGroup : string[] = [];
-      let minEmojiiNum = Math.floor(comboLength / 2)
+      let minEmojiiNum = Math.floor(comboLength / 2) + 1
       while(possibleEmojiisInGroup.length < minEmojiiNum)
       {
-        randomEmojiiGroup= RandomUtils.getRandomItemFromList(Object.keys(EmojiiGroup));
+        randomEmojiiGroup= RandomUtils.getRandomItemFromList([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]);
         possibleEmojiisInGroup = EmojiiGroupConfig.getPossibleEmojiisInGroup(randomEmojiiGroup);
         console.log("randomEmojiiGroup: " + randomEmojiiGroup);
       }
       let possibleNamesInGroup = EmojiiGroupConfig.getPossibleNamesInGroup(randomEmojiiGroup);
       let comboName = RandomUtils.getRandomItemFromList(possibleNamesInGroup);
 
-      console.log("comboName: " + comboName);
+      console.log("comboName " + comboName);
       // Exact characters of emojii combo
       // At least 50% of the length of the combo must be unique
       let emojiiComboContents : string[] = [];
@@ -130,7 +130,7 @@ export class EncounterGenerator
       for(let idx = 0; idx< comboLength; idx++)
       {
         let nextEmojiiInCombo = "";
-        if(idx < Math.floor(comboLength/2))
+        if(idx < Math.floor(comboLength/2) + 1)
         {
           // Add unique character
           let availableEmojiiCharacters = possibleEmojiisInGroup.filter(function(item){return !emojiiComboContents.includes(item)});

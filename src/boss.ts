@@ -134,7 +134,6 @@ export class Boss{
 
       // If needed, refresh boss UI
       this.numMessagesWithoutBossStatus++;
-      console.log("num messages " + this.numMessagesWithoutBossStatus);
 
       // Handle boss defeat, if needed
       if(this.miniboss.getCurrentHealth() <= 0)
@@ -207,7 +206,7 @@ export class Boss{
     // Empty message buffer
     this.onOutputMsgBuffer();
 
-    this.outputHandler.outputToChannel(`Boss was aborted early. (${this.miniboss.getCurrentHealth()}/${this.miniboss.getMaxHealth}HP)`);
+    this.outputHandler.outputToChannel(`Boss was aborted early. (${this.miniboss.getCurrentHealth()}/${this.miniboss.getMaxHealth()}HP)`);
     this.endBossEncounter();
   }
 
