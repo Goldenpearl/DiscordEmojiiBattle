@@ -28,7 +28,6 @@ export class InputHandler
   {
 
     let textInput:string = message.content;
-        console.log(textInput);
     // handle boss early defeat
     // TODO implement in a more graceful way, e.g. listener or referenced variable
     if(this.emojiiBattleActive && this.boss.getEncounterHasEnded())

@@ -108,8 +108,6 @@ export class EncounterGenerator
           comboLength = comboLength-1;
         }
       }
-
-      console.log("Combo length " + comboLength);
       // Get combo group and name
       // No more than 50% of the combo can be a duplicate character.
       let randomEmojiiGroup : EmojiiGroup = EmojiiGroup.toTheMooooon; // default value; will be overwritten
@@ -119,18 +117,12 @@ export class EncounterGenerator
       {
         randomEmojiiGroup= RandomUtils.getRandomItemFromList(Object.keys(EmojiiGroup));
         possibleEmojiisInGroup = EmojiiGroupConfig.getPossibleEmojiisInGroup(randomEmojiiGroup);
-        console.log("randomEmojiiGroup" + randomEmojiiGroup);
-        console.log("Combo length " + comboLength);
-        console.log("minEmojiiNum " + minEmojiiNum);
-        console.log("possibleEmojiisInGroup " + possibleEmojiisInGroup);
+        console.log("randomEmojiiGroup: " + randomEmojiiGroup);
       }
-      console.log("Emojii Group " + randomEmojiiGroup);
-      console.log("Emojii Group items " + possibleEmojiisInGroup);
-
       let possibleNamesInGroup = EmojiiGroupConfig.getPossibleNamesInGroup(randomEmojiiGroup);
       let comboName = RandomUtils.getRandomItemFromList(possibleNamesInGroup);
 
-      console.log("comboName " + comboName);
+      console.log("comboName: " + comboName);
       // Exact characters of emojii combo
       // At least 50% of the length of the combo must be unique
       let emojiiComboContents : string[] = [];
@@ -156,10 +148,8 @@ export class EncounterGenerator
         emojiiComboContents.push(nextEmojiiInCombo);
       }
 
-        console.log("emojiiComboContents " + emojiiComboContents);
       // Randomize combo order
       emojiiComboContents = emojiiComboContents.sort(function(){ return 0.5 - Math.random()});
-      console.log("emojiiComboContents " + emojiiComboContents);
 
       // Damage range of emojii combo
       // Step 1: Get base value (BASE_COMBO_DMG * Length squared; for each duplicate emojii, multiply by 90%)
@@ -169,8 +159,6 @@ export class EncounterGenerator
       let damageWobble = RandomUtils.getRandomValueFromMinToMax(EncounterGenerator.MIN_DAMAGE_WOBBLE, EncounterGenerator.MAX_DAMAGE_WOBBLE);
       let minDamage = Math.floor((baseDamage - baseDamage * damageWobble));
       let maxDamage = Math.floor(baseDamage + (baseDamage * damageWobble));
-      console.log("minDamage " + emojiiComboContents);
-      console.log("maxDamage " + emojiiComboContents);
       // Add emojii combo to list
       comboList.push(new EmojiiCombo(comboName, emojiiComboContents, minDamage, maxDamage));
     }

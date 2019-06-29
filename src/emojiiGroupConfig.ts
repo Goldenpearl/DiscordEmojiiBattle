@@ -163,6 +163,7 @@ export class EmojiiGroupConfig
   */
   static getPossibleNamesInGroup(emojiiGroup : EmojiiGroup) : string[]
   {
+    console.log("Possible name: " + emojiiGroup);
     let returnable : string[] = [];
     switch(emojiiGroup)
     {

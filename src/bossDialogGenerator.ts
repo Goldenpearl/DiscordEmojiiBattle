@@ -105,9 +105,6 @@ export class BossDialogGenerator
        let numFullHearts :number = Math.round(numHalfHearts/2);
        numHalfHearts -= numFullHearts * 2;
        let numEmptyHearts = BossDialogGenerator.NUM_HEARTS_TO_DISPLAY - numFullHearts - numHalfHearts;
-       console.log("has numHalfHearts" + numHalfHearts);
-       console.log("has numFullHearts" + numFullHearts);
-       console.log("has numEmptyHearts" + numEmptyHearts);
        for(let idx = 0; idx< numFullHearts; idx++)
        {
          returnableStr+= BossDialogGenerator.FULL_HEART_EMOJII + " ";
@@ -120,10 +117,8 @@ export class BossDialogGenerator
        {
          returnableStr+= BossDialogGenerator.EMPTY_HEART_EMOJII + " ";
        }
-      console.log(returnableStr);
        // Trim trailing space
        returnableStr = returnableStr.slice(0, -1);
-       console.log(returnableStr);
      }
      else
      {

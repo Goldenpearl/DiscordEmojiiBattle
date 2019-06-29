@@ -34,8 +34,6 @@ export class MiniBoss{
 
   public takeDamage(damageToTake : number) : void
   {
-    console.log("currentHealth" + this.currentHealth);
-    console.log("Take dmg:" + damageToTake);
     if(this.currentHealth < damageToTake)
     {
       this.currentHealth = 0;
